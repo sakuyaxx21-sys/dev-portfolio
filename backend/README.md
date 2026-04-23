@@ -68,6 +68,7 @@ PostgreSQL（RDS）
 
 ## ■ Directory Structure
 
+```text
 app/
 ├── api/                         # ルーティング・エンドポイント定義
 │   ├── dependencies/            # 認証・共通依存関数
@@ -107,6 +108,7 @@ tests/                           # テストコード（pytest）
 ├── conftest.py
 ├── test_health.py
 └── test_users.py
+```
 
 ---
 
@@ -119,7 +121,7 @@ tests/                           # テストコード（pytest）
 
 ### 認証ヘッダー
 
-Authorization: Bearer <access_token>
+`Authorization: Bearer {access_token}`
 
 ---
 
@@ -293,7 +295,7 @@ Authorization: Bearer <access_token>
 ### 利用方法（使い方）
 Authorizationヘッダにトークンを付与
 
-Authorization: Bearer <access_token>
+`Authorization: Bearer {access_token}`
 
 ---
 
@@ -321,6 +323,7 @@ Authorization: Bearer <access_token>
 以下は `.env.example` のサンプルです。  
 実際の値は `.env` ファイルで管理してください。
 
+```env
 APP_NAME=Dev Portfolio App  
 APP_VERSION=1.0.0  
 DEBUG=True  
@@ -331,13 +334,14 @@ DATABASE_URL=postgresql+psycopg://app_user:app_password@db:5432/app_db
 
 SECRET_KEY=your-secret-key  
 ALGORITHM=HS256  
-ACCESS_TOKEN_EXPIRE_MINUTES=30  
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```  
 
 ※ インフラ構成（RDS等）は infra/README.md を参照
 
 ---
 
-## Local Development
+## ■ Local Development
 
 ### 前提
 - Docker / Docker Compose インストール済み
@@ -350,11 +354,12 @@ docker compose up --build
 ```
 
 ### アクセス
-http://localhost:8000/docs
+
+- Local: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
-## EC2 Deployment
+##  ■ EC2 Deployment
 
 EC2環境では、アプリケーションコンテナのみを起動し、DBはAmazon RDS for PostgreSQLを使用します。
 
@@ -391,7 +396,7 @@ docker run -d \
 
 ## ■ Health Check
 
-#### GET /health
+### GET /health
 
 ALBのターゲットグループのヘルスチェックに使用
 

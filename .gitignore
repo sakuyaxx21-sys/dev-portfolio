@@ -1,0 +1,96 @@
+# ============================
+# Python
+# ============================
+__pycache__/
+*.py[cod]
+
+# ============================
+# Virtual Environment
+# ============================
+.venv/
+venv/
+env/
+
+# ============================
+# Environment Files
+# ============================
+.env
+.env.*
+
+# Keep .env.example for reference and sharing
+!.env.example
+
+# ============================
+# Database
+# ============================
+*.db
+*.sqlite3
+
+# ============================
+# Test / Type Check / Coverage
+# ============================
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ============================
+# IDE / Editor
+# ============================
+.vscode/
+.idea/
+
+# ============================
+# OS Generated Files
+# ============================
+.DS_Store
+Thumbs.db
+
+# ============================
+# Logs
+# ============================
+logs/
+*.log
+
+# ============================
+# Docker
+# ============================
+*.pid
+docker-compose.override.yml
+
+# ============================
+# Build / Packaging
+# ============================
+dist/
+build/
+*.egg-info/
+
+# ============================
+# Local Secrets / AWS
+# ============================
+*.pem
+*.key
+
+# ============================
+# Optional: Jupyter
+# ============================
+.ipynb_checkpoints/
+
+# ============================
+# Terraform
+# ============================
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+
+# Keep example tfvars for reference and sharing
+!.example.tfvars
+
+# ============================
+# Terraform Version
+# ============================
+# Keep .terraform-version for reproducibility
+!.terraform-version

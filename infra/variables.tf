@@ -51,3 +51,33 @@ variable "private_db_subnet_cidrs" {
   type        = list(string)
   default     = ["10.0.21.0/24", "10.0.22.0/24"]
 }
+
+variable "app_port" {
+  description = "Application port"
+  type        = number
+  default     = 8000
+}
+
+variable "instance_type" {
+  description = "EC2 instance type for app servers"
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "asg_min_size" {
+  description = "Minimum size of Auto Scaling Group"
+  type        = number
+  default     = 1
+}
+
+variable "asg_max_size" {
+  description = "Maximum size of Auto Scaling Group"
+  type        = number
+  default     = 2
+}
+
+variable "asg_desired_capacity" {
+  description = "Desired capacity of Auto Scaling Group"
+  type        = number
+  default     = 1
+}

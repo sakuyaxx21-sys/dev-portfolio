@@ -81,3 +81,33 @@ variable "asg_desired_capacity" {
   type        = number
   default     = 1
 }
+
+variable "db_name" {
+  description = "Database name"
+  type        = string
+  default     = "app_db"
+}
+
+variable "db_username" {
+  description = "Database master username"
+  type        = string
+  default     = "app_user"
+}
+
+variable "db_instance_class" {
+  description = "RDS instance class"
+  type        = string
+  default     = "db.t4g.micro"
+}
+
+variable "db_allocated_storage" {
+  description = "RDS allocated storage"
+  type        = number
+  default     = 20
+}
+
+variable "db_engine_version" {
+  description = "PostgreSQL engine version"
+  type        = string
+  default     = "16.13"
+}

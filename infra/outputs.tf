@@ -47,3 +47,18 @@ output "app_asg_name" {
   description = "App Auto Scaling Group name"
   value       = aws_autoscaling_group.app.name
 }
+
+output "rds_endpoint" {
+  description = "RDS endpoint"
+  value       = aws_db_instance.main.endpoint
+}
+
+output "db_secret_name" {
+  description = "Secrets Manager secret name"
+  value       = aws_secretsmanager_secret.db.name
+}
+
+output "waf_web_acl_name" {
+  description = "WAF Web ACL name"
+  value       = aws_wafv2_web_acl.main.name
+}

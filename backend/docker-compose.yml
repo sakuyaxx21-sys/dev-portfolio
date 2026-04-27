@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:17
+    image: postgres:16
     container_name: portfolio-db
     environment:
       POSTGRES_USER: app_user

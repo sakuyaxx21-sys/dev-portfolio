@@ -55,3 +55,32 @@ resource "aws_security_group" "app" {
     Name = "${local.name_prefix}-sg-app"
   }
 }
+
+# ============================
+# DB Security Group
+# ============================
+resource "aws_security_group" "db" {
+  name        = "${local.name_prefix}-sg-db"
+  description = "Security group for DB"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "Allow PostgreSQL from app servers"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+  }
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${local.name_prefix}-sg-db"
+  }
+}

@@ -85,7 +85,12 @@ resource "aws_launch_template" "app" {
 
   vpc_security_group_ids = [aws_security_group.app.id]
 
-  user_data = base64encode(file("${path.module}/user_data.sh"))
+  user_data = base64encode(templatefile("${path.module}/user_data.sh.tftpl", {
+    github_repo_url = var.github_repo_url
+    db_secret_name  = aws_secretsmanager_secret.db.name
+    db_host         = aws_db_instance.main.address
+    aws_region      = var.aws_region
+  }))
 
   tag_specifications {
     resource_type = "instance"

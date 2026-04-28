@@ -7,6 +7,11 @@ resource "random_password" "db" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
+resource "random_password" "app_secret_key" {
+  length  = 64
+  special = false
+}
+
 # ============================
 # Secrets Manager
 # ============================
@@ -24,8 +29,9 @@ resource "aws_secretsmanager_secret_version" "db" {
   secret_id = aws_secretsmanager_secret.db.id
 
   secret_string = jsonencode({
-    username = var.db_username
-    password = random_password.db.result
-    dbname   = var.db_name
+    username   = var.db_username
+    password   = random_password.db.result
+    dbname     = var.db_name
+    secret_key = random_password.app_secret_key.result
   })
 }

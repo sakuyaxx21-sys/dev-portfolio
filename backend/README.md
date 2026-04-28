@@ -363,21 +363,23 @@ docker compose up --build
 
 EC2環境では、アプリケーションコンテナのみを起動し、DBはAmazon RDS for PostgreSQLを使用します。
 
+RDS接続情報はTerraformで作成したSecrets Managerから取得し、EC2起動時に `.env.ec2` として生成します。
+
 ### 1. Dockerイメージ作成
 
 ```bash
-docker build -t portfolio-app .
+docker build -t dev-portfolio-backend .
 ```
 
 ### 2. コンテナ起動
 
 ```bash
 docker run -d \
-  --name portfolio-app \
-  --restart unless-stopped \
+  --name dev-portfolio-backend \
   -p 8000:8000 \
   --env-file .env.ec2 \
-  portfolio-app
+  --restart unless-stopped \
+  dev-portfolio-backend
 ```
 
 ---

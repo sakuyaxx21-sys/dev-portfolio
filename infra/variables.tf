@@ -111,3 +111,9 @@ variable "db_engine_version" {
   type        = string
   default     = "16.13"
 }
+
+variable "github_repo_url" {
+  description = "GitHub repository URL for application deployment"
+  type        = string
+  default     = "https://github.com/sakuyaxx21-sys/dev-portfolio.git"
+}

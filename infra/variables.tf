@@ -117,3 +117,13 @@ variable "github_repo_url" {
   type        = string
   default     = "https://github.com/sakuyaxx21-sys/dev-portfolio.git"
 }
+
+variable "domain_name" {
+  description = "Root domain name managed by Route 53"
+  type        = string
+}
+
+variable "app_domain_name" {
+  description = "Application domain name"
+  type        = string
+}

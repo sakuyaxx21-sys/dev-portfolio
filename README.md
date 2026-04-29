@@ -129,7 +129,7 @@ docker compose up --build
   - API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 - Public:
-  - API Docs: [https://sakuyadev.com/docs](https://sakuyadev.com/docs)
+  - API Docs: [https://app.sakuyadev.com/docs](https://app.sakuyadev.com/docs)
   - 構成: HTTPS / ALB / ACM
 
 ---
@@ -160,4 +160,4 @@ AWS上のEC2およびRDSを利用してアプリケーションを公開して�
 
 Sakuya Aradono  
 - GitHub: [sakuyaxx21-sys](https://github.com/sakuyaxx21-sys)  
-- Portfolio: [sakuyadev.com](https://sakuyadev.com)
+- App: [app.sakuyadev.com](https://app.sakuyadev.com)

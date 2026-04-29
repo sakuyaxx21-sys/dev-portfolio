@@ -62,3 +62,23 @@ output "waf_web_acl_name" {
   description = "WAF Web ACL name"
   value       = aws_wafv2_web_acl.main.name
 }
+
+output "app_url" {
+  description = "Application URL"
+  value       = "https://${var.app_domain_name}"
+}
+
+output "acm_certificate_arn" {
+  description = "ACM certificate ARN"
+  value       = aws_acm_certificate.app.arn
+}
+
+output "route53_zone_id" {
+  description = "Route 53 hosted zone ID"
+  value       = data.aws_route53_zone.main.zone_id
+}
+
+output "route53_app_record" {
+  description = "Route 53 app record"
+  value       = aws_route53_record.app.fqdn
+}

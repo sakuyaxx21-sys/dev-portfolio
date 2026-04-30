@@ -2,7 +2,7 @@
 set -xe
 
 dnf update -y
-dnf install -y docker git jq awscli
+dnf install -y docker git jq awscli amazon-cloudwatch-agent
 
 systemctl enable docker
 systemctl start docker
@@ -37,6 +37,16 @@ SECRET_KEY=$APP_SECRET_KEY
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 EOF
+
+cat <<'EOF' > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+${cloudwatch_agent_config}
+EOF
+
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config \
+  -m ec2 \
+  -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json \
+  -s
 
 docker build -t dev-portfolio-backend .
 

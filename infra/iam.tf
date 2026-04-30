@@ -64,3 +64,12 @@ resource "aws_iam_role_policy_attachment" "app_secrets" {
   role       = aws_iam_role.app_ec2.name
   policy_arn = aws_iam_policy.app_secrets.arn
 }
+
+# ============================
+# EC2 Policy for CloudWatch Agent
+# ============================
+
+resource "aws_iam_role_policy_attachment" "cloudwatch_agent_server" {
+  role       = aws_iam_role.app_ec2.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}

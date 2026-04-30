@@ -127,3 +127,13 @@ variable "app_domain_name" {
   description = "Application domain name"
   type        = string
 }
+
+variable "slack_team_id" {
+  description = "Slack team ID for AWS Chatbot"
+  type        = string
+}
+
+variable "slack_channel_id" {
+  description = "Slack channel ID for AWS Chatbot notifications"
+  type        = string
+}

@@ -26,6 +26,12 @@ resource "aws_lb" "app" {
   security_groups    = [aws_security_group.alb.id]
   subnets            = aws_subnet.public[*].id
 
+  access_logs {
+    bucket  = aws_s3_bucket.alb_logs.bucket
+    prefix  = "alb-logs"
+    enabled = true
+  }
+
   tags = {
     Name = "${local.name_prefix}-alb-app"
   }
@@ -43,7 +49,7 @@ resource "aws_lb_target_group" "app" {
 
   health_check {
     enabled             = true
-    path                = "/"
+    path                = "/api/v1/health"
     protocol            = "HTTP"
     matcher             = "200-399"
     interval            = 30
@@ -107,10 +113,11 @@ resource "aws_launch_template" "app" {
   vpc_security_group_ids = [aws_security_group.app.id]
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tftpl", {
-    github_repo_url = var.github_repo_url
-    db_secret_name  = aws_secretsmanager_secret.db.name
-    db_host         = aws_db_instance.main.address
-    aws_region      = var.aws_region
+    github_repo_url         = var.github_repo_url
+    db_secret_name          = aws_secretsmanager_secret.db.name
+    db_host                 = aws_db_instance.main.address
+    aws_region              = var.aws_region
+    cloudwatch_agent_config = file("${path.module}/cloudwatch_agent_config.json")
   }))
 
   tag_specifications {

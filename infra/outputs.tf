@@ -82,3 +82,28 @@ output "route53_app_record" {
   description = "Route 53 app record"
   value       = aws_route53_record.app.fqdn
 }
+
+output "sns_alerts_topic_arn" {
+  description = "SNS topic ARN for CloudWatch alarm notifications"
+  value       = aws_sns_topic.alerts.arn
+}
+
+output "chatbot_slack_configuration" {
+  description = "AWS Chatbot Slack channel configuration name"
+  value       = aws_chatbot_slack_channel_configuration.alerts.configuration_name
+}
+
+output "alb_logs_bucket_name" {
+  description = "S3 bucket name for ALB access logs"
+  value       = aws_s3_bucket.alb_logs.bucket
+}
+
+output "cloudwatch_log_group_docker" {
+  description = "CloudWatch log group name for Docker application logs"
+  value       = aws_cloudwatch_log_group.docker_app.name
+}
+
+output "waf_log_group_name" {
+  description = "CloudWatch log group name for WAF logs"
+  value       = aws_cloudwatch_log_group.waf.name
+}

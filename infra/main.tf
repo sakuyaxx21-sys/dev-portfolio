@@ -27,3 +27,21 @@ module "security" {
   db_username = var.db_username
   db_name     = var.db_name
 }
+
+# ============================
+# DB Module
+# ============================
+module "db" {
+  source = "./modules/db"
+
+  name_prefix           = local.name_prefix
+  private_db_subnet_ids = module.network.private_db_subnet_ids
+  db_security_group_id  = module.network.db_security_group_id
+  kms_key_arn           = module.security.kms_key_arn
+
+  db_name              = var.db_name
+  db_username          = var.db_username
+  db_instance_class    = var.db_instance_class
+  db_allocated_storage = var.db_allocated_storage
+  db_engine_version    = var.db_engine_version
+}

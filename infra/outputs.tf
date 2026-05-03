@@ -50,7 +50,7 @@ output "app_asg_name" {
 
 output "rds_endpoint" {
   description = "RDS endpoint"
-  value       = aws_db_instance.main.endpoint
+  value       = module.db.db_endpoint
 }
 
 output "db_secret_name" {

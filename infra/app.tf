@@ -123,7 +123,7 @@ resource "aws_launch_template" "app" {
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tftpl", {
     github_repo_url         = var.github_repo_url
     db_secret_name          = module.security.db_secret_name
-    db_host                 = aws_db_instance.main.address
+    db_host                 = module.db.db_endpoint
     aws_region              = var.aws_region
     cloudwatch_agent_config = file("${path.module}/cloudwatch_agent_config.json")
   }))

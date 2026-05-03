@@ -3,7 +3,7 @@
 # ============================
 resource "aws_db_subnet_group" "main" {
   name       = "${local.name_prefix}-db-subnet-group"
-  subnet_ids = module.network.private_db_subnet_ids
+  subnet_ids = var.private_db_subnet_ids
 
   tags = {
     Name = "${local.name_prefix}-db-subnet-group"
@@ -24,14 +24,14 @@ resource "aws_db_instance" "main" {
   max_allocated_storage = 100
   storage_type          = "gp3"
   storage_encrypted     = true
-  kms_key_id            = module.security.kms_key_arn
+  kms_key_id            = var.kms_key_arn
 
   db_name                     = var.db_name
   username                    = var.db_username
   manage_master_user_password = true
 
   db_subnet_group_name   = aws_db_subnet_group.main.name
-  vpc_security_group_ids = [module.network.db_security_group_id]
+  vpc_security_group_ids = [var.db_security_group_id]
 
   multi_az            = false
   publicly_accessible = false

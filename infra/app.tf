@@ -99,6 +99,14 @@ resource "aws_lb_listener" "https" {
 }
 
 # ============================
+# Associate WAF with ALB
+# ============================
+resource "aws_wafv2_web_acl_association" "alb" {
+  resource_arn = aws_lb.app.arn
+  web_acl_arn  = module.security.waf_web_acl_arn
+}
+
+# ============================
 # Launch Template
 # ============================
 resource "aws_launch_template" "app" {
@@ -107,14 +115,14 @@ resource "aws_launch_template" "app" {
   instance_type = var.instance_type
 
   iam_instance_profile {
-    name = aws_iam_instance_profile.app_ec2.name
+    name = module.security.app_ec2_instance_profile_name
   }
 
   vpc_security_group_ids = [module.network.app_security_group_id]
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tftpl", {
     github_repo_url         = var.github_repo_url
-    db_secret_name          = aws_secretsmanager_secret.db.name
+    db_secret_name          = module.security.db_secret_name
     db_host                 = aws_db_instance.main.address
     aws_region              = var.aws_region
     cloudwatch_agent_config = file("${path.module}/cloudwatch_agent_config.json")

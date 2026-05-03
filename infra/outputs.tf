@@ -55,12 +55,12 @@ output "rds_endpoint" {
 
 output "db_secret_name" {
   description = "Secrets Manager secret name"
-  value       = aws_secretsmanager_secret.db.name
+  value       = module.security.db_secret_name
 }
 
 output "waf_web_acl_name" {
   description = "WAF Web ACL name"
-  value       = aws_wafv2_web_acl.main.name
+  value       = module.security.waf_web_acl_name
 }
 
 output "app_url" {

@@ -23,8 +23,8 @@ resource "aws_lb" "app" {
   name               = "${local.name_prefix}-alb-app"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = aws_subnet.public[*].id
+  security_groups    = [module.network.alb_security_group_id]
+  subnets            = module.network.public_subnet_ids
 
   access_logs {
     bucket  = aws_s3_bucket.alb_logs.bucket
@@ -44,7 +44,7 @@ resource "aws_lb_target_group" "app" {
   name        = "${local.name_prefix}-tg-app"
   port        = var.app_port
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = module.network.vpc_id
   target_type = "instance"
 
   health_check {
@@ -110,7 +110,7 @@ resource "aws_launch_template" "app" {
     name = aws_iam_instance_profile.app_ec2.name
   }
 
-  vpc_security_group_ids = [aws_security_group.app.id]
+  vpc_security_group_ids = [module.network.app_security_group_id]
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tftpl", {
     github_repo_url         = var.github_repo_url
@@ -141,7 +141,7 @@ resource "aws_autoscaling_group" "app" {
   min_size            = var.asg_min_size
   max_size            = var.asg_max_size
   desired_capacity    = var.asg_desired_capacity
-  vpc_zone_identifier = aws_subnet.private_app[*].id
+  vpc_zone_identifier = module.network.private_app_subnet_ids
   target_group_arns   = [aws_lb_target_group.app.arn]
   health_check_type   = "ELB"
 

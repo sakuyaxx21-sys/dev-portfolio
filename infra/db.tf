@@ -3,7 +3,7 @@
 # ============================
 resource "aws_db_subnet_group" "main" {
   name       = "${local.name_prefix}-db-subnet-group"
-  subnet_ids = aws_subnet.private_db[*].id
+  subnet_ids = module.network.private_db_subnet_ids
 
   tags = {
     Name = "${local.name_prefix}-db-subnet-group"
@@ -31,7 +31,7 @@ resource "aws_db_instance" "main" {
   password = random_password.db.result
 
   db_subnet_group_name   = aws_db_subnet_group.main.name
-  vpc_security_group_ids = [aws_security_group.db.id]
+  vpc_security_group_ids = [module.network.db_security_group_id]
 
   multi_az            = false
   publicly_accessible = false

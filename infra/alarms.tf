@@ -5,7 +5,7 @@ resource "aws_cloudwatch_metric_alarm" "asg_inservice" {
   alarm_name          = "${local.name_prefix}-ops-alarm-asg-capacity"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 1
-  threshold           = aws_autoscaling_group.app.desired_capacity
+  threshold           = var.asg_desired_capacity
 
   alarm_description = "ASG InService instances are below desired capacity"
 
@@ -22,7 +22,7 @@ resource "aws_cloudwatch_metric_alarm" "asg_inservice" {
       stat        = "Average"
 
       dimensions = {
-        AutoScalingGroupName = aws_autoscaling_group.app.name
+        AutoScalingGroupName = module.app.asg_name
       }
     }
   }
@@ -37,7 +37,7 @@ resource "aws_cloudwatch_metric_alarm" "asg_inservice" {
       stat        = "Average"
 
       dimensions = {
-        AutoScalingGroupName = aws_autoscaling_group.app.name
+        AutoScalingGroupName = module.app.asg_name
       }
     }
   }
@@ -69,7 +69,7 @@ resource "aws_cloudwatch_metric_alarm" "asg_cpu" {
   ok_actions    = [aws_sns_topic.alerts.arn]
 
   dimensions = {
-    AutoScalingGroupName = aws_autoscaling_group.app.name
+    AutoScalingGroupName = module.app.asg_name
   }
 }
 
@@ -92,8 +92,8 @@ resource "aws_cloudwatch_metric_alarm" "target_unhealthy" {
   ok_actions    = [aws_sns_topic.alerts.arn]
 
   dimensions = {
-    LoadBalancer = aws_lb.app.arn_suffix
-    TargetGroup  = aws_lb_target_group.app.arn_suffix
+    LoadBalancer = module.app.alb_arn_suffix
+    TargetGroup  = module.app.target_group_arn_suffix
   }
 }
 
@@ -116,8 +116,8 @@ resource "aws_cloudwatch_metric_alarm" "target_5xx" {
   ok_actions    = [aws_sns_topic.alerts.arn]
 
   dimensions = {
-    LoadBalancer = aws_lb.app.arn_suffix
-    TargetGroup  = aws_lb_target_group.app.arn_suffix
+    LoadBalancer = module.app.alb_arn_suffix
+    TargetGroup  = module.app.target_group_arn_suffix
   }
 }
 
@@ -140,7 +140,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
   ok_actions    = [aws_sns_topic.alerts.arn]
 
   dimensions = {
-    LoadBalancer = aws_lb.app.arn_suffix
+    LoadBalancer = module.app.alb_arn_suffix
   }
 }
 

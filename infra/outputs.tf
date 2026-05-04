@@ -30,22 +30,22 @@ output "private_db_subnet_ids" {
 
 output "alb_dns_name" {
   description = "ALB DNS name"
-  value       = aws_lb.app.dns_name
+  value       = module.app.alb_dns_name
 }
 
 output "alb_zone_id" {
   description = "ALB Zone ID"
-  value       = aws_lb.app.zone_id
+  value       = module.app.alb_zone_id
 }
 
 output "app_target_group_arn" {
   description = "App target group ARN"
-  value       = aws_lb_target_group.app.arn
+  value       = module.app.target_group_arn
 }
 
 output "app_asg_name" {
   description = "App Auto Scaling Group name"
-  value       = aws_autoscaling_group.app.name
+  value       = module.app.asg_name
 }
 
 output "rds_endpoint" {
@@ -70,17 +70,17 @@ output "app_url" {
 
 output "acm_certificate_arn" {
   description = "ACM certificate ARN"
-  value       = aws_acm_certificate.app.arn
+  value       = module.app.acm_certificate_arn
 }
 
 output "route53_zone_id" {
   description = "Route 53 hosted zone ID"
-  value       = data.aws_route53_zone.main.zone_id
+  value       = module.app.route53_zone_id
 }
 
 output "route53_app_record" {
   description = "Route 53 app record"
-  value       = aws_route53_record.app.fqdn
+  value       = module.app.app_url
 }
 
 output "sns_alerts_topic_arn" {

@@ -112,3 +112,23 @@ module "operations" {
   slack_team_id    = var.slack_team_id
   slack_channel_id = var.slack_channel_id
 }
+
+# ============================
+# Monitoring Module
+# ============================
+module "monitoring" {
+  source = "./modules/monitoring"
+
+  name_prefix = local.name_prefix
+  project     = var.project
+  env         = var.env
+
+  alb_arn_suffix          = module.app.alb_arn_suffix
+  target_group_arn_suffix = module.app.target_group_arn_suffix
+  asg_name                = module.app.asg_name
+  asg_desired_capacity    = var.asg_desired_capacity
+
+  db_instance_identifier = module.db.db_instance_id
+
+  sns_alerts_topic_arn = module.operations.sns_alerts_topic_arn
+}

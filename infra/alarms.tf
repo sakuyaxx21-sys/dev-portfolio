@@ -9,8 +9,8 @@ resource "aws_cloudwatch_metric_alarm" "asg_inservice" {
 
   alarm_description = "ASG InService instances are below desired capacity"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [module.operations.sns_alerts_topic_arn]
+  ok_actions    = [module.operations.sns_alerts_topic_arn]
 
   metric_query {
     id = "inservice"
@@ -65,8 +65,8 @@ resource "aws_cloudwatch_metric_alarm" "asg_cpu" {
 
   alarm_description = "EC2 CPU utilization in ASG is high"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [module.operations.sns_alerts_topic_arn]
+  ok_actions    = [module.operations.sns_alerts_topic_arn]
 
   dimensions = {
     AutoScalingGroupName = module.app.asg_name
@@ -88,8 +88,8 @@ resource "aws_cloudwatch_metric_alarm" "target_unhealthy" {
 
   alarm_description = "Unhealthy targets detected"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [module.operations.sns_alerts_topic_arn]
+  ok_actions    = [module.operations.sns_alerts_topic_arn]
 
   dimensions = {
     LoadBalancer = module.app.alb_arn_suffix
@@ -112,8 +112,8 @@ resource "aws_cloudwatch_metric_alarm" "target_5xx" {
 
   alarm_description = "Target group 5XX errors detected"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [module.operations.sns_alerts_topic_arn]
+  ok_actions    = [module.operations.sns_alerts_topic_arn]
 
   dimensions = {
     LoadBalancer = module.app.alb_arn_suffix
@@ -136,8 +136,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
 
   alarm_description = "ALB 5XX errors detected"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [module.operations.sns_alerts_topic_arn]
+  ok_actions    = [module.operations.sns_alerts_topic_arn]
 
   dimensions = {
     LoadBalancer = module.app.alb_arn_suffix
@@ -159,8 +159,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu" {
 
   alarm_description = "RDS CPU utilization is high"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [module.operations.sns_alerts_topic_arn]
+  ok_actions    = [module.operations.sns_alerts_topic_arn]
 
   dimensions = {
     DBInstanceIdentifier = module.db.db_instance_id
@@ -182,8 +182,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_storage" {
 
   alarm_description = "RDS free storage is low"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [module.operations.sns_alerts_topic_arn]
+  ok_actions    = [module.operations.sns_alerts_topic_arn]
 
   dimensions = {
     DBInstanceIdentifier = module.db.db_instance_id
@@ -205,8 +205,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_connections" {
 
   alarm_description = "RDS database connections are high"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [module.operations.sns_alerts_topic_arn]
+  ok_actions    = [module.operations.sns_alerts_topic_arn]
 
   dimensions = {
     DBInstanceIdentifier = module.db.db_instance_id

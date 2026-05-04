@@ -62,7 +62,7 @@ module "app" {
   alb_security_group_id  = module.network.alb_security_group_id
   app_security_group_id  = module.network.app_security_group_id
 
-  alb_logs_bucket_name = aws_s3_bucket.alb_logs.bucket
+  alb_logs_bucket_name = module.operations.alb_logs_bucket_name
 
   app_port        = var.app_port
   instance_type   = var.instance_type
@@ -84,5 +84,31 @@ module "app" {
 
   aws_region = var.aws_region
 
-  cloudwatch_agent_config = file("${path.module}/cloudwatch_agent_config.json")
+  cloudwatch_agent_config = file("${path.module}/modules/operations/cloudwatch_agent_config.json")
+}
+
+# ============================
+# Operations Module
+# ============================
+module "operations" {
+  source = "./modules/operations"
+
+  name_prefix = local.name_prefix
+  project     = var.project
+  env         = var.env
+  aws_region  = var.aws_region
+
+  alb_arn                 = module.app.alb_arn
+  alb_arn_suffix          = module.app.alb_arn_suffix
+  target_group_arn_suffix = module.app.target_group_arn_suffix
+  asg_name                = module.app.asg_name
+
+  waf_web_acl_arn = module.security.waf_web_acl_arn
+
+  vpc_id = module.network.vpc_id
+
+  db_instance_identifier = module.db.db_instance_id
+
+  slack_team_id    = var.slack_team_id
+  slack_channel_id = var.slack_channel_id
 }

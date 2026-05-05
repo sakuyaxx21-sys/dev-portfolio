@@ -23,11 +23,11 @@ resource "aws_lb" "app" {
   name               = "${local.name_prefix}-alb-app"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = aws_subnet.public[*].id
+  security_groups    = [var.alb_security_group_id]
+  subnets            = var.public_subnet_ids
 
   access_logs {
-    bucket  = aws_s3_bucket.alb_logs.bucket
+    bucket  = var.alb_logs_bucket_name
     prefix  = "alb-logs"
     enabled = true
   }
@@ -44,7 +44,7 @@ resource "aws_lb_target_group" "app" {
   name        = "${local.name_prefix}-tg-app"
   port        = var.app_port
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
   target_type = "instance"
 
   health_check {
@@ -99,6 +99,14 @@ resource "aws_lb_listener" "https" {
 }
 
 # ============================
+# Associate WAF with ALB
+# ============================
+resource "aws_wafv2_web_acl_association" "alb" {
+  resource_arn = aws_lb.app.arn
+  web_acl_arn  = var.web_acl_arn
+}
+
+# ============================
 # Launch Template
 # ============================
 resource "aws_launch_template" "app" {
@@ -107,17 +115,17 @@ resource "aws_launch_template" "app" {
   instance_type = var.instance_type
 
   iam_instance_profile {
-    name = aws_iam_instance_profile.app_ec2.name
+    name = var.app_ec2_instance_profile_name
   }
 
-  vpc_security_group_ids = [aws_security_group.app.id]
+  vpc_security_group_ids = [var.app_security_group_id]
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tftpl", {
     github_repo_url         = var.github_repo_url
-    db_secret_name          = aws_secretsmanager_secret.db.name
-    db_host                 = aws_db_instance.main.address
+    db_secret_name          = var.db_secret_name
+    db_host                 = var.db_host
     aws_region              = var.aws_region
-    cloudwatch_agent_config = file("${path.module}/cloudwatch_agent_config.json")
+    cloudwatch_agent_config = var.cloudwatch_agent_config
   }))
 
   tag_specifications {
@@ -141,7 +149,7 @@ resource "aws_autoscaling_group" "app" {
   min_size            = var.asg_min_size
   max_size            = var.asg_max_size
   desired_capacity    = var.asg_desired_capacity
-  vpc_zone_identifier = aws_subnet.private_app[*].id
+  vpc_zone_identifier = var.private_app_subnet_ids
   target_group_arns   = [aws_lb_target_group.app.arn]
   health_check_type   = "ELB"
 

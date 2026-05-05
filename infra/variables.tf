@@ -1,3 +1,6 @@
+# ============================
+# AWS Provider
+# ============================
 variable "aws_region" {
   description = "AWS region"
   type        = string
@@ -10,6 +13,9 @@ variable "aws_profile" {
   default     = "terraform-dev"
 }
 
+# ============================
+# Common
+# ============================
 variable "project" {
   description = "Project name"
   type        = string
@@ -22,6 +28,9 @@ variable "env" {
   default     = "dev"
 }
 
+# ============================
+# Network
+# ============================
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
   type        = string
@@ -29,7 +38,7 @@ variable "vpc_cidr" {
 }
 
 variable "availability_zones" {
-  description = "Availability zones"
+  description = "Availability Zones"
   type        = list(string)
   default     = ["ap-northeast-1a", "ap-northeast-1c"]
 }
@@ -52,6 +61,9 @@ variable "private_db_subnet_cidrs" {
   default     = ["10.0.21.0/24", "10.0.22.0/24"]
 }
 
+# ============================
+# Application
+# ============================
 variable "app_port" {
   description = "Application port"
   type        = number
@@ -64,6 +76,15 @@ variable "instance_type" {
   default     = "t3.micro"
 }
 
+variable "github_repo_url" {
+  description = "GitHub repository URL for application deployment"
+  type        = string
+  default     = "https://github.com/sakuyaxx21-sys/dev-portfolio.git"
+}
+
+# ============================
+# Auto Scaling
+# ============================
 variable "asg_min_size" {
   description = "Minimum size of Auto Scaling Group"
   type        = number
@@ -82,6 +103,9 @@ variable "asg_desired_capacity" {
   default     = 1
 }
 
+# ============================
+# Database
+# ============================
 variable "db_name" {
   description = "Database name"
   type        = string
@@ -112,12 +136,9 @@ variable "db_engine_version" {
   default     = "16.13"
 }
 
-variable "github_repo_url" {
-  description = "GitHub repository URL for application deployment"
-  type        = string
-  default     = "https://github.com/sakuyaxx21-sys/dev-portfolio.git"
-}
-
+# ============================
+# DNS / HTTPS
+# ============================
 variable "domain_name" {
   description = "Root domain name managed by Route 53"
   type        = string
@@ -128,6 +149,9 @@ variable "app_domain_name" {
   type        = string
 }
 
+# ============================
+# Slack
+# ============================
 variable "slack_team_id" {
   description = "Slack team ID for AWS Chatbot"
   type        = string

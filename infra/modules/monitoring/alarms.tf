@@ -5,12 +5,12 @@ resource "aws_cloudwatch_metric_alarm" "asg_inservice" {
   alarm_name          = "${local.name_prefix}-ops-alarm-asg-capacity"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 1
-  threshold           = aws_autoscaling_group.app.desired_capacity
+  threshold           = var.asg_desired_capacity
 
   alarm_description = "ASG InService instances are below desired capacity"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [var.sns_alerts_topic_arn]
+  ok_actions    = [var.sns_alerts_topic_arn]
 
   metric_query {
     id = "inservice"
@@ -22,7 +22,7 @@ resource "aws_cloudwatch_metric_alarm" "asg_inservice" {
       stat        = "Average"
 
       dimensions = {
-        AutoScalingGroupName = aws_autoscaling_group.app.name
+        AutoScalingGroupName = var.asg_name
       }
     }
   }
@@ -37,7 +37,7 @@ resource "aws_cloudwatch_metric_alarm" "asg_inservice" {
       stat        = "Average"
 
       dimensions = {
-        AutoScalingGroupName = aws_autoscaling_group.app.name
+        AutoScalingGroupName = var.asg_name
       }
     }
   }
@@ -65,11 +65,11 @@ resource "aws_cloudwatch_metric_alarm" "asg_cpu" {
 
   alarm_description = "EC2 CPU utilization in ASG is high"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [var.sns_alerts_topic_arn]
+  ok_actions    = [var.sns_alerts_topic_arn]
 
   dimensions = {
-    AutoScalingGroupName = aws_autoscaling_group.app.name
+    AutoScalingGroupName = var.asg_name
   }
 }
 
@@ -88,12 +88,12 @@ resource "aws_cloudwatch_metric_alarm" "target_unhealthy" {
 
   alarm_description = "Unhealthy targets detected"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [var.sns_alerts_topic_arn]
+  ok_actions    = [var.sns_alerts_topic_arn]
 
   dimensions = {
-    LoadBalancer = aws_lb.app.arn_suffix
-    TargetGroup  = aws_lb_target_group.app.arn_suffix
+    LoadBalancer = var.alb_arn_suffix
+    TargetGroup  = var.target_group_arn_suffix
   }
 }
 
@@ -112,12 +112,12 @@ resource "aws_cloudwatch_metric_alarm" "target_5xx" {
 
   alarm_description = "Target group 5XX errors detected"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [var.sns_alerts_topic_arn]
+  ok_actions    = [var.sns_alerts_topic_arn]
 
   dimensions = {
-    LoadBalancer = aws_lb.app.arn_suffix
-    TargetGroup  = aws_lb_target_group.app.arn_suffix
+    LoadBalancer = var.alb_arn_suffix
+    TargetGroup  = var.target_group_arn_suffix
   }
 }
 
@@ -136,11 +136,11 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
 
   alarm_description = "ALB 5XX errors detected"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [var.sns_alerts_topic_arn]
+  ok_actions    = [var.sns_alerts_topic_arn]
 
   dimensions = {
-    LoadBalancer = aws_lb.app.arn_suffix
+    LoadBalancer = var.alb_arn_suffix
   }
 }
 
@@ -159,11 +159,11 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu" {
 
   alarm_description = "RDS CPU utilization is high"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [var.sns_alerts_topic_arn]
+  ok_actions    = [var.sns_alerts_topic_arn]
 
   dimensions = {
-    DBInstanceIdentifier = aws_db_instance.main.id
+    DBInstanceIdentifier = var.db_instance_identifier
   }
 }
 
@@ -182,11 +182,11 @@ resource "aws_cloudwatch_metric_alarm" "rds_storage" {
 
   alarm_description = "RDS free storage is low"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [var.sns_alerts_topic_arn]
+  ok_actions    = [var.sns_alerts_topic_arn]
 
   dimensions = {
-    DBInstanceIdentifier = aws_db_instance.main.id
+    DBInstanceIdentifier = var.db_instance_identifier
   }
 }
 
@@ -205,10 +205,10 @@ resource "aws_cloudwatch_metric_alarm" "rds_connections" {
 
   alarm_description = "RDS database connections are high"
 
-  alarm_actions = [aws_sns_topic.alerts.arn]
-  ok_actions    = [aws_sns_topic.alerts.arn]
+  alarm_actions = [var.sns_alerts_topic_arn]
+  ok_actions    = [var.sns_alerts_topic_arn]
 
   dimensions = {
-    DBInstanceIdentifier = aws_db_instance.main.id
+    DBInstanceIdentifier = var.db_instance_identifier
   }
 }

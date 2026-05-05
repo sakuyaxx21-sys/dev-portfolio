@@ -1,3 +1,6 @@
+# ============================
+# S3 Bucket for Terraform State
+# ============================
 resource "aws_s3_bucket" "tfstate" {
   bucket = "${local.name_prefix}-tfstate-${data.aws_caller_identity.current.account_id}"
 
@@ -6,6 +9,9 @@ resource "aws_s3_bucket" "tfstate" {
   }
 }
 
+# ============================
+# Versioning
+# ============================
 resource "aws_s3_bucket_versioning" "tfstate" {
   bucket = aws_s3_bucket.tfstate.id
 
@@ -14,6 +20,9 @@ resource "aws_s3_bucket_versioning" "tfstate" {
   }
 }
 
+# ============================
+# Block Public Access
+# ============================
 resource "aws_s3_bucket_public_access_block" "tfstate" {
   bucket = aws_s3_bucket.tfstate.id
 
@@ -23,6 +32,9 @@ resource "aws_s3_bucket_public_access_block" "tfstate" {
   restrict_public_buckets = true
 }
 
+# ============================
+# Server Side Encryption
+# ============================
 resource "aws_s3_bucket_server_side_encryption_configuration" "tfstate" {
   bucket = aws_s3_bucket.tfstate.id
 

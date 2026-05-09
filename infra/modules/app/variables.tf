@@ -55,6 +55,16 @@ variable "alb_logs_bucket_name" {
 # ============================
 # Application
 # ============================
+variable "app_dir" {
+  description = "Application directory on EC2"
+  type        = string
+}
+
+variable "app_name" {
+  description = "Application name (used for Docker container/image)"
+  type        = string
+}
+
 variable "app_port" {
   description = "Application port"
   type        = number

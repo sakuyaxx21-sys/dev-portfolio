@@ -47,6 +47,14 @@ variable "private_db_subnet_cidrs" {
 }
 
 # ============================
+# NAT Gateway
+# ============================
+variable "nat_gateway_count" {
+  description = "Number of NAT Gateways to create"
+  type        = number
+}
+
+# ============================
 # Application
 # ============================
 variable "app_port" {

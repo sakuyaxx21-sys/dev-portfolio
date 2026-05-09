@@ -121,6 +121,8 @@ resource "aws_launch_template" "app" {
   vpc_security_group_ids = [var.app_security_group_id]
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tftpl", {
+    app_dir                 = var.app_dir
+    app_name                = var.app_name
     github_repo_url         = var.github_repo_url
     db_secret_name          = var.db_secret_name
     db_host                 = var.db_host
@@ -158,27 +160,18 @@ resource "aws_autoscaling_group" "app" {
     version = "$Latest"
   }
 
-  tag {
-    key                 = "Name"
-    value               = "${local.name_prefix}-ec2-app"
-    propagate_at_launch = true
-  }
+  dynamic "tag" {
+    for_each = {
+      Name      = "${local.name_prefix}-ec2-app"
+      Project   = var.project
+      Env       = var.env
+      ManagedBy = "Terraform"
+    }
 
-  tag {
-    key                 = "Project"
-    value               = var.project
-    propagate_at_launch = true
-  }
-
-  tag {
-    key                 = "Env"
-    value               = var.env
-    propagate_at_launch = true
-  }
-
-  tag {
-    key                 = "ManagedBy"
-    value               = "Terraform"
-    propagate_at_launch = true
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
   }
 }

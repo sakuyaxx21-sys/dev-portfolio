@@ -2,7 +2,8 @@
 # S3 Bucket for ALB Access Logs
 # ============================
 resource "aws_s3_bucket" "alb_logs" {
-  bucket = "${local.name_prefix}-ops-alb-logs-${data.aws_caller_identity.current.account_id}"
+  bucket        = "${local.name_prefix}-ops-alb-logs-${data.aws_caller_identity.current.account_id}"
+  force_destroy = var.alb_logs_bucket_force_destroy
 
   tags = {
     Name = "${local.name_prefix}-ops-alb-logs"

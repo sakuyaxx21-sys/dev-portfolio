@@ -7,8 +7,8 @@ dnf install -y docker git jq awscli amazon-cloudwatch-agent
 systemctl enable docker
 systemctl start docker
 
-mkdir -p /opt/dev-portfolio
-cd /opt/dev-portfolio
+mkdir -p ${app_dir}
+cd ${app_dir}
 
 git clone ${github_repo_url} .
 
@@ -48,14 +48,14 @@ EOF
   -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json \
   -s
 
-docker build -t dev-portfolio-backend .
+docker build -t ${app_name}-backend .
 
-docker stop dev-portfolio-backend || true
-docker rm dev-portfolio-backend || true
+docker stop ${app_name}-backend || true
+docker rm ${app_name}-backend || true
 
 docker run -d \
-  --name dev-portfolio-backend \
+  --name ${app_name}-backend \
   -p 8000:8000 \
   --env-file .env.ec2 \
   --restart unless-stopped \
-  dev-portfolio-backend
+  ${app_name}-backend

@@ -3,7 +3,7 @@
 # ============================
 resource "aws_kms_key" "main" {
   description             = "KMS key for ${local.name_prefix}"
-  deletion_window_in_days = 7
+  deletion_window_in_days = var.kms_deletion_window_in_days
   enable_key_rotation     = true
 
   tags = {

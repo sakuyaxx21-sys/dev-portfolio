@@ -16,9 +16,10 @@ resource "random_password" "app_secret_key" {
 # Secrets Manager
 # ============================
 resource "aws_secretsmanager_secret" "db" {
-  name        = "${local.name_prefix}-secret-db"
-  description = "Database credentials for ${local.name_prefix}"
-  kms_key_id  = aws_kms_key.main.arn
+  name                    = "${local.name_prefix}-secret-db"
+  description             = "Database credentials for ${local.name_prefix}"
+  kms_key_id              = aws_kms_key.main.arn
+  recovery_window_in_days = var.secret_recovery_window_in_days
 
   tags = {
     Name = "${local.name_prefix}-secret-db"

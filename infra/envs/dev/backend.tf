@@ -4,7 +4,7 @@
 terraform {
   backend "s3" {
     bucket  = "dev-portfolio-tfstate-139295583002"
-    key     = "dev/terraform.tfstate"
+    key     = "envs/dev/terraform.tfstate"
     region  = "ap-northeast-1"
     profile = "terraform-dev"
 

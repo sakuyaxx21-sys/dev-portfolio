@@ -79,6 +79,12 @@ variable "instance_type" {
   default     = "t3.micro"
 }
 
+variable "root_volume_size" {
+  description = "Root EBS volume size for app EC2 instances in GiB"
+  type        = number
+  default     = 20
+}
+
 variable "github_repo_url" {
   description = "GitHub repository URL for application deployment"
   type        = string

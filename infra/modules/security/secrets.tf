@@ -1,12 +1,6 @@
 # ============================
 # Random Password
 # ============================
-resource "random_password" "db" {
-  length           = 20
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
-}
-
 resource "random_password" "app_secret_key" {
   length  = 64
   special = false
@@ -15,24 +9,21 @@ resource "random_password" "app_secret_key" {
 # ============================
 # Secrets Manager
 # ============================
-resource "aws_secretsmanager_secret" "db" {
-  name                    = "${local.name_prefix}-secret-db"
-  description             = "Database credentials for ${local.name_prefix}"
+resource "aws_secretsmanager_secret" "app" {
+  name                    = "${local.name_prefix}-secret-app"
+  description             = "Application credentials for ${local.name_prefix}"
   kms_key_id              = aws_kms_key.main.arn
   recovery_window_in_days = var.secret_recovery_window_in_days
 
   tags = {
-    Name = "${local.name_prefix}-secret-db"
+    Name = "${local.name_prefix}-secret-app"
   }
 }
 
-resource "aws_secretsmanager_secret_version" "db" {
-  secret_id = aws_secretsmanager_secret.db.id
+resource "aws_secretsmanager_secret_version" "app" {
+  secret_id = aws_secretsmanager_secret.app.id
 
   secret_string = jsonencode({
-    username   = var.db_username
-    password   = random_password.db.result
-    dbname     = var.db_name
     secret_key = random_password.app_secret_key.result
   })
 }

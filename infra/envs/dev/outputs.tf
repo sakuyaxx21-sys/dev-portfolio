@@ -60,14 +60,14 @@ output "app_asg_name" {
 # ============================
 # Database
 # ============================
-output "rds_endpoint" {
+output "db_endpoint" {
   description = "RDS endpoint"
   value       = module.db.db_endpoint
 }
 
-output "db_secret_name" {
-  description = "Secrets Manager secret name for DB credentials"
-  value       = module.security.db_secret_name
+output "app_secret_name" {
+  description = "Secrets Manager secret name for application credentials"
+  value       = module.security.app_secret_name
 }
 
 # ============================

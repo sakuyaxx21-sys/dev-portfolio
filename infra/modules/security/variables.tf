@@ -7,18 +7,16 @@ variable "name_prefix" {
 }
 
 # ============================
-# Secrets Manager
+# Database
 # ============================
-variable "db_username" {
-  description = "Database master username"
+variable "db_master_secret_arn" {
+  description = "RDS managed master user secret ARN"
   type        = string
 }
 
-variable "db_name" {
-  description = "Database name"
-  type        = string
-}
-
+# ============================
+# Secrets Manager / KMS
+# ============================
 variable "secret_recovery_window_in_days" {
   description = "Recovery window in days for Secrets Manager secret deletion"
   type        = number

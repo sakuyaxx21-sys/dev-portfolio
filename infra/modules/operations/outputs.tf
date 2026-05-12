@@ -15,7 +15,7 @@ output "chatbot_slack_configuration_name" {
 }
 
 # ============================
-# ALB Logs S3 Bucket
+# ALB Access Logs
 # ============================
 output "alb_logs_bucket_name" {
   description = "S3 bucket name for ALB access logs"

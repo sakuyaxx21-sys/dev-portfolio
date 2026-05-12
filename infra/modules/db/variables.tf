@@ -28,7 +28,7 @@ variable "kms_key_arn" {
 }
 
 # ============================
-# RDS
+# Database
 # ============================
 variable "db_name" {
   description = "Database name"

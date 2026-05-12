@@ -121,14 +121,34 @@ resource "aws_launch_template" "app" {
   vpc_security_group_ids = [var.app_security_group_id]
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tftpl", {
-    app_dir                 = var.app_dir
-    app_name                = var.app_name
-    github_repo_url         = var.github_repo_url
-    db_secret_name          = var.db_secret_name
-    db_host                 = var.db_host
+    app_dir         = var.app_dir
+    app_name        = var.app_name
+    github_repo_url = var.github_repo_url
+
+    db_host              = var.db_host
+    db_port              = var.db_port
+    db_name              = var.db_name
+    db_username          = var.db_username
+    db_master_secret_arn = var.db_master_secret_arn
+    app_secret_name      = var.app_secret_name
+
     aws_region              = var.aws_region
     cloudwatch_agent_config = var.cloudwatch_agent_config
   }))
+
+  # ==============================
+  # EBS Volume
+  # ==============================
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      volume_size           = var.root_volume_size
+      volume_type           = "gp3"
+      delete_on_termination = true
+      encrypted             = true
+    }
+  }
 
   tag_specifications {
     resource_type = "instance"
@@ -158,6 +178,15 @@ resource "aws_autoscaling_group" "app" {
   launch_template {
     id      = aws_launch_template.app.id
     version = "$Latest"
+  }
+
+  instance_refresh {
+    strategy = "Rolling"
+
+    preferences {
+      instance_warmup        = 300
+      min_healthy_percentage = 50
+    }
   }
 
   dynamic "tag" {

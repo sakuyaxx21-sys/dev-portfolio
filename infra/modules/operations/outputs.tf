@@ -15,7 +15,7 @@ output "chatbot_slack_configuration_name" {
 }
 
 # ============================
-# ALB Logs S3 Bucket
+# ALB Access Logs
 # ============================
 output "alb_logs_bucket_name" {
   description = "S3 bucket name for ALB access logs"
@@ -38,12 +38,4 @@ output "waf_log_group_name" {
 output "waf_log_group_arn" {
   description = "CloudWatch log group ARN for WAF logs"
   value       = aws_cloudwatch_log_group.waf.arn
-}
-
-# ============================
-# Terraform State
-# ============================
-output "tfstate_bucket_name" {
-  description = "S3 bucket name for Terraform remote state"
-  value       = aws_s3_bucket.tfstate.bucket
 }

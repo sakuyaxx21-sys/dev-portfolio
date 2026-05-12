@@ -1,5 +1,5 @@
 # ============================
-# RDS
+# Database
 # ============================
 output "db_instance_id" {
   description = "RDS instance ID"
@@ -14,6 +14,12 @@ output "db_endpoint" {
 output "db_port" {
   description = "RDS port"
   value       = aws_db_instance.main.port
+}
+
+output "db_master_secret_arn" {
+  description = "RDS managed master user secret ARN"
+  value       = aws_db_instance.main.master_user_secret[0].secret_arn
+  sensitive   = true
 }
 
 output "db_subnet_group_name" {

@@ -55,6 +55,16 @@ variable "alb_logs_bucket_name" {
 # ============================
 # Application
 # ============================
+variable "app_dir" {
+  description = "Application directory on EC2"
+  type        = string
+}
+
+variable "app_name" {
+  description = "Application name (used for Docker container/image)"
+  type        = string
+}
+
 variable "app_port" {
   description = "Application port"
   type        = number
@@ -63,6 +73,11 @@ variable "app_port" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
+}
+
+variable "root_volume_size" {
+  description = "Root EBS volume size for app EC2 instances in GiB"
+  type        = number
 }
 
 variable "github_repo_url" {
@@ -91,13 +106,36 @@ variable "asg_desired_capacity" {
 # ============================
 # Database
 # ============================
-variable "db_secret_name" {
-  description = "Secrets Manager secret name for database credentials"
+variable "db_host" {
+  description = "RDS endpoint host"
   type        = string
 }
 
-variable "db_host" {
-  description = "RDS endpoint host"
+variable "db_port" {
+  description = "RDS port"
+  type        = number
+}
+
+variable "db_name" {
+  description = "Database name"
+  type        = string
+}
+
+variable "db_username" {
+  description = "Database master username"
+  type        = string
+}
+
+variable "db_master_secret_arn" {
+  description = "RDS managed master user secret ARN"
+  type        = string
+}
+
+# ============================
+# Secrets Manager
+# ============================
+variable "app_secret_name" {
+  description = "Secrets Manager secret name for application credentials"
   type        = string
 }
 

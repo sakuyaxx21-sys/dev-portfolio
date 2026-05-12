@@ -10,7 +10,6 @@ variable "aws_region" {
 variable "aws_profile" {
   description = "AWS CLI profile name"
   type        = string
-  default     = "terraform-dev"
 }
 
 # ============================
@@ -19,13 +18,11 @@ variable "aws_profile" {
 variable "project" {
   description = "Project name"
   type        = string
-  default     = "portfolio"
 }
 
 variable "env" {
   description = "Environment name"
   type        = string
-  default     = "dev"
 }
 
 # ============================
@@ -61,6 +58,12 @@ variable "private_db_subnet_cidrs" {
   default     = ["10.0.21.0/24", "10.0.22.0/24"]
 }
 
+variable "nat_gateway_count" {
+  description = "Number of NAT Gateways to create"
+  type        = number
+  default     = 1
+}
+
 # ============================
 # Application
 # ============================
@@ -76,10 +79,15 @@ variable "instance_type" {
   default     = "t3.micro"
 }
 
+variable "root_volume_size" {
+  description = "Root EBS volume size for app EC2 instances in GiB"
+  type        = number
+  default     = 20
+}
+
 variable "github_repo_url" {
   description = "GitHub repository URL for application deployment"
   type        = string
-  default     = "https://github.com/sakuyaxx21-sys/dev-portfolio.git"
 }
 
 # ============================
@@ -134,6 +142,54 @@ variable "db_engine_version" {
   description = "PostgreSQL engine version"
   type        = string
   default     = "16.13"
+}
+
+variable "db_multi_az" {
+  description = "Whether to enable Multi-AZ deployment for RDS"
+  type        = bool
+  default     = false
+}
+
+variable "backup_retention_period" {
+  description = "Number of days to retain automated backups"
+  type        = number
+  default     = 0
+}
+
+variable "deletion_protection" {
+  description = "Whether to enable deletion protection for RDS"
+  type        = bool
+  default     = false
+}
+
+variable "skip_final_snapshot" {
+  description = "Whether to skip final snapshot when destroying RDS"
+  type        = bool
+  default     = true
+}
+
+# ============================
+# Secrets Manager / KMS
+# ============================
+variable "secret_recovery_window_in_days" {
+  description = "Recovery window in days for Secrets Manager secret deletion"
+  type        = number
+  default     = 0
+}
+
+variable "kms_deletion_window_in_days" {
+  description = "Waiting period in days before KMS key deletion"
+  type        = number
+  default     = 7
+}
+
+# ============================
+# ALB Access Logs
+# ============================
+variable "alb_logs_bucket_force_destroy" {
+  description = "Whether to force destroy the ALB access logs S3 bucket even if it contains objects"
+  type        = bool
+  default     = true
 }
 
 # ============================

@@ -61,6 +61,14 @@ variable "db_instance_identifier" {
 }
 
 # ============================
+# ALB Access Logs
+# ============================
+variable "alb_logs_bucket_force_destroy" {
+  description = "Whether to force destroy the ALB access logs S3 bucket even if it contains objects"
+  type        = bool
+}
+
+# ============================
 # WAF
 # ============================
 variable "waf_web_acl_arn" {

@@ -28,7 +28,7 @@ variable "kms_key_arn" {
 }
 
 # ============================
-# RDS
+# Database
 # ============================
 variable "db_name" {
   description = "Database name"
@@ -53,4 +53,24 @@ variable "db_allocated_storage" {
 variable "db_engine_version" {
   description = "PostgreSQL engine version"
   type        = string
+}
+
+variable "db_multi_az" {
+  description = "Whether to enable Multi-AZ deployment for RDS"
+  type        = bool
+}
+
+variable "backup_retention_period" {
+  description = "Number of days to retain automated backups"
+  type        = number
+}
+
+variable "deletion_protection" {
+  description = "Whether to enable deletion protection for RDS"
+  type        = bool
+}
+
+variable "skip_final_snapshot" {
+  description = "Whether to skip final snapshot when destroying RDS"
+  type        = bool
 }

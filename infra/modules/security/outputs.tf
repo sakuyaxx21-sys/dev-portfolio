@@ -17,14 +17,14 @@ output "app_ec2_instance_profile_name" {
 # ============================
 # Secrets Manager
 # ============================
-output "db_secret_name" {
-  description = "Secrets Manager secret name for database credentials"
-  value       = aws_secretsmanager_secret.db.name
+output "app_secret_name" {
+  description = "Secrets Manager secret name for application credentials"
+  value       = aws_secretsmanager_secret.app.name
 }
 
-output "db_secret_arn" {
-  description = "Secrets Manager secret ARN for database credentials"
-  value       = aws_secretsmanager_secret.db.arn
+output "app_secret_arn" {
+  description = "Secrets Manager secret ARN for application credentials"
+  value       = aws_secretsmanager_secret.app.arn
 }
 
 # ============================

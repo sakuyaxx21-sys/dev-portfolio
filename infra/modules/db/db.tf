@@ -33,12 +33,12 @@ resource "aws_db_instance" "main" {
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [var.db_security_group_id]
 
-  multi_az            = false
+  multi_az            = var.db_multi_az
   publicly_accessible = false
 
-  backup_retention_period = 7
-  deletion_protection     = false
-  skip_final_snapshot     = true
+  backup_retention_period = var.backup_retention_period
+  deletion_protection     = var.deletion_protection
+  skip_final_snapshot     = var.skip_final_snapshot
 
   tags = {
     Name = "${local.name_prefix}-rds-postgres"

@@ -1,15 +1,8 @@
 # ============================
-# AWS Context
-# ============================
-data "aws_caller_identity" "current" {}
-
-data "aws_region" "current" {}
-
-# ============================
 # Network Module
 # ============================
 module "network" {
-  source = "./modules/network"
+  source = "../../modules/network"
 
   name_prefix              = local.name_prefix
   vpc_cidr                 = var.vpc_cidr
@@ -17,6 +10,7 @@ module "network" {
   public_subnet_cidrs      = var.public_subnet_cidrs
   private_app_subnet_cidrs = var.private_app_subnet_cidrs
   private_db_subnet_cidrs  = var.private_db_subnet_cidrs
+  nat_gateway_count        = var.nat_gateway_count
   app_port                 = var.app_port
 }
 
@@ -24,36 +18,45 @@ module "network" {
 # Security Module
 # ============================
 module "security" {
-  source = "./modules/security"
+  source = "../../modules/security"
 
   name_prefix = local.name_prefix
-  db_username = var.db_username
-  db_name     = var.db_name
+
+  db_master_secret_arn = module.db.db_master_secret_arn
+
+  secret_recovery_window_in_days = var.secret_recovery_window_in_days
+  kms_deletion_window_in_days    = var.kms_deletion_window_in_days
 }
 
 # ============================
 # DB Module
 # ============================
 module "db" {
-  source = "./modules/db"
+  source = "../../modules/db"
 
   name_prefix           = local.name_prefix
   private_db_subnet_ids = module.network.private_db_subnet_ids
   db_security_group_id  = module.network.db_security_group_id
-  kms_key_arn           = module.security.kms_key_arn
 
   db_name              = var.db_name
   db_username          = var.db_username
   db_instance_class    = var.db_instance_class
   db_allocated_storage = var.db_allocated_storage
   db_engine_version    = var.db_engine_version
+  db_multi_az          = var.db_multi_az
+
+  backup_retention_period = var.backup_retention_period
+  deletion_protection     = var.deletion_protection
+  skip_final_snapshot     = var.skip_final_snapshot
+
+  kms_key_arn = module.security.kms_key_arn
 }
 
 # ============================
 # App Module
 # ============================
 module "app" {
-  source = "./modules/app"
+  source = "../../modules/app"
 
   name_prefix = local.name_prefix
   project     = var.project
@@ -67,16 +70,25 @@ module "app" {
 
   alb_logs_bucket_name = module.operations.alb_logs_bucket_name
 
-  app_port        = var.app_port
-  instance_type   = var.instance_type
-  github_repo_url = var.github_repo_url
+  app_dir  = "/opt/${var.env}-${var.project}"
+  app_name = "${var.env}-${var.project}"
+
+  app_port         = var.app_port
+  instance_type    = var.instance_type
+  root_volume_size = var.root_volume_size
+  github_repo_url  = var.github_repo_url
 
   asg_min_size         = var.asg_min_size
   asg_max_size         = var.asg_max_size
   asg_desired_capacity = var.asg_desired_capacity
 
-  db_secret_name = module.security.db_secret_name
-  db_host        = module.db.db_endpoint
+  app_secret_name = module.security.app_secret_name
+
+  db_host              = module.db.db_endpoint
+  db_port              = module.db.db_port
+  db_name              = var.db_name
+  db_username          = var.db_username
+  db_master_secret_arn = module.db.db_master_secret_arn
 
   app_ec2_instance_profile_name = module.security.app_ec2_instance_profile_name
 
@@ -87,14 +99,20 @@ module "app" {
 
   aws_region = var.aws_region
 
-  cloudwatch_agent_config = file("${path.module}/modules/operations/cloudwatch_agent_config.json")
+  cloudwatch_agent_config = templatefile(
+    "${path.module}/../../modules/operations/cloudwatch_agent_config.json",
+    {
+      env     = var.env
+      project = var.project
+    }
+  )
 }
 
 # ============================
 # Operations Module
 # ============================
 module "operations" {
-  source = "./modules/operations"
+  source = "../../modules/operations"
 
   name_prefix = local.name_prefix
   project     = var.project
@@ -110,6 +128,8 @@ module "operations" {
 
   vpc_id = module.network.vpc_id
 
+  alb_logs_bucket_force_destroy = var.alb_logs_bucket_force_destroy
+
   db_instance_identifier = module.db.db_instance_id
 
   slack_team_id    = var.slack_team_id
@@ -120,7 +140,7 @@ module "operations" {
 # Monitoring Module
 # ============================
 module "monitoring" {
-  source = "./modules/monitoring"
+  source = "../../modules/monitoring"
 
   name_prefix = local.name_prefix
   project     = var.project

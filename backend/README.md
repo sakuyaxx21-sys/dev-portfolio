@@ -4,8 +4,11 @@
 
 ## ■ Overview
 
-本バックエンドは FastAPI を用いたREST APIであり、  
-社内申請管理システムの業務ロジック・認証・データ管理を担います。
+本バックエンドは FastAPI を用いた REST API であり、  
+社内向け申請管理システムの業務ロジック・認証・データ管理を担います。
+
+申請作成、承認、ユーザー管理などを API として提供し、  
+JWT 認証によるステートレスな認証方式を採用しています。
 
 本システムでは、主に「交通費精算申請」をユースケースとして想定しています。
 
@@ -13,11 +16,13 @@
 
 ## ■ Architecture（Backend）
 
-FastAPI  
+FastAPI Router  
+↓  
+Dependencies（認証 / DB Session）  
 ↓  
 Service Layer（ビジネスロジック）  
 ↓  
-Repository（SQLAlchemy ORM）  
+SQLAlchemy ORM  
 ↓  
 PostgreSQL（RDS）
 
@@ -25,11 +30,12 @@ PostgreSQL（RDS）
 
 ## ■ Request Flow
 
-1. Client → FastAPI Endpoint  
-2. Endpoint → Service Layer  
-3. Service → Repository（SQLAlchemy ORM）  
-4. Repository → PostgreSQL（RDS）  
-5. 処理結果をレスポンスとして返却  
+1. Client → FastAPI Router  
+2. Router → Dependencies（認証 / DB Session）  
+3. Router → Service Layer  
+4. Service → SQLAlchemy ORM  
+5. SQLAlchemy ORM → PostgreSQL（RDS）  
+6. 処理結果をレスポンスとして返却  
 
 ---
 
@@ -55,7 +61,7 @@ PostgreSQL（RDS）
 
 ---
 
-## ■ Tech Stack（Backend Only）
+## ■ Tech Stack（Backend）
 
 - FastAPI
 - SQLAlchemy
@@ -66,53 +72,66 @@ PostgreSQL（RDS）
 
 ---
 
+## ■ System Design
+
+### レイヤ構成
+
+- Router / Dependencies / Service / DB のレイヤ構成
+- Dependencies で認証ユーザー取得・DB Session 注入を実施
+- Service 層でビジネスロジックを分離
+- Service 層から SQLAlchemy ORM を利用して DB 操作を実行
+- SQLAlchemy ORM による DB 抽象化
+- Custom Exception による例外責務分離
+- JWT 認証によるステートレス設計
+
+---
+
+### セキュリティ設計
+
+- pwdlib + argon2によるパスワードハッシュ化
+- JWT署名によるトークン改ざん防止
+- ロールベース認可（RBAC）によるアクセス制御
+- 環境変数による機密情報管理（.env）
+- HTTPS通信前提（ALB経由）
+
+---
+
 ## ■ Directory Structure
 
 ```text
-app/
-├── api/                         # ルーティング・エンドポイント定義
-│   ├── dependencies/            # 認証・共通依存関数
-│   │   └── auth.py
-│   ├── v1/
-│   │   ├── endpoints/           # APIエンドポイント
-│   │   │   ├── admin.py
-│   │   │   ├── applications.py
-│   │   │   ├── auth.py
-│   │   │   ├── health.py
-│   │   │   └── users.py
-│   │   └── router.py            # ルーター統合
-│   └── error_handlers.py        # 例外ハンドリング
-├── core/                        # 設定・セキュリティ・共通処理
-│   ├── config.py
-│   ├── exceptions.py
-│   └── security.py
-├── db/                          # DB接続・初期化処理
-│   ├── base.py
-│   ├── models.py
-│   ├── seed.py
-│   └── session.py
-├── models/                      # ORMモデル定義
-│   ├── applications.py
-│   └── users.py
-├── schemas/                     # Pydanticスキーマ（入出力定義）
-│   ├── applications.py
-│   ├── auth.py
-│   └── users.py
-├── services/                    # ビジネスロジック
-│   ├── applications.py
-│   ├── auth.py
-│   └── users.py
-└── main.py                      # FastAPIエントリーポイント
-
-tests/                           # テストコード（pytest）
-├── conftest.py
-├── test_health.py
-└── test_users.py
+backend/
+├── app/
+│   ├── api/
+│   │   ├── dependencies/                        # 認証・共通依存関数
+│   │   │   └── auth.py
+│   │   ├── v1/
+│   │   │   ├── endpoints/                       # APIエンドポイント
+│   │   │   │   ├── admin.py
+│   │   │   │   ├── applications.py
+│   │   │   │   ├── auth.py
+│   │   │   │   ├── health.py
+│   │   │   │   └── users.py
+│   │   │   └── router.py                        # ルーター統合
+│   │   └── error_handlers.py                    # 例外ハンドリング
+│   │
+│   ├── core/                                    # 設定・セキュリティ・共通処理
+│   ├── db/                                      # DB接続・初期化処理
+│   ├── models/                                  # ORMモデル定義
+│   ├── schemas/                                 # Pydanticスキーマ
+│   ├── services/                                # ビジネスロジック
+│   └── main.py                                  # FastAPIエントリーポイント
+│
+├── tests/                                       # テストコード（pytest）
+├── .env.example                                 # 環境変数サンプル
+├── docker-compose.yml                           # ローカル開発用
+├── Dockerfile                                   # アプリケーションコンテナ定義
+├── requirements.txt                             # Python依存関係
+└── README.md                                    # バックエンド詳細
 ```
 
 ---
 
-## API Specification
+## ■ API Specification
 
 本APIは `/api/v1` をプレフィックスとしたREST APIです。  
 認証が必要なエンドポイントでは、HTTPヘッダーにJWTトークンを付与します。
@@ -129,7 +148,7 @@ tests/                           # テストコード（pytest）
 <summary>認証API</summary>
 
 ### POST /api/v1/auth/login  
-ユーザーログインを行い、JWTトークンを取得します。
+- ユーザーログインを行い、JWTトークンを取得
 
 **Request**
 {
@@ -151,7 +170,7 @@ tests/                           # テストコード（pytest）
 <summary>ユーザーAPI</summary>
 
 ### POST /api/v1/users  
-新規ユーザーを作成します。
+- 新規ユーザーを作成
 
 **Request**
 {
@@ -176,7 +195,7 @@ tests/                           # テストコード（pytest）
 <summary>申請API（交通費精算）</summary>
 
 ### POST /api/v1/applications  
-交通費精算申請を作成します（認証必要）
+- 交通費精算申請を作成（認証必要）
 
 **Request**
 {
@@ -200,7 +219,7 @@ tests/                           # テストコード（pytest）
 ---
 
 ### GET /api/v1/applications/me  
-ログインユーザーの申請一覧を取得します（認証必要）
+- ログインユーザーの申請一覧を取得（認証必要）
 
 **Response**
 [
@@ -219,12 +238,12 @@ tests/                           # テストコード（pytest）
 <summary>管理者API</summary>
 
 ### GET /api/v1/admin/applications  
-全ユーザーの申請一覧を取得します（admin権限）
+- 全ユーザーの申請一覧を取得（admin権限）
 
 ---
 
 ### PATCH /api/v1/admin/applications/{id}/status  
-申請のステータスを更新します（admin権限）
+- 申請のステータスを更新（admin権限）
 
 **Request（承認）**
 {
@@ -246,7 +265,8 @@ tests/                           # テストコード（pytest）
 <summary>ヘルスチェック</summary>
 
 ### GET /api/v1/health  
-アプリケーションの稼働確認
+- アプリケーションの稼働状態を確認
+- ALBターゲットグループのヘルスチェックに使用
 
 **Response**
 {
@@ -269,6 +289,16 @@ tests/                           # テストコード（pytest）
 
 ### エラー仕様
 
+以下のカスタム例外を使用
+
+- AppServiceError（基底例外）
+- ResourceNotFoundError
+- ConflictError
+- AuthenticationError
+- AuthorizationError
+
+---
+
 #### 認証・認可エラー
 
 | ステータス | 内容                           |
@@ -287,7 +317,7 @@ tests/                           # テストコード（pytest）
 
 ---
 
-## ■ Authentication
+## ■ Authentication / Authorization
 
 ### 認証方式
 - JWT（JSON Web Token）
@@ -305,16 +335,6 @@ Authorizationヘッダにトークンを付与
 2. サーバーがJWTトークンを発行  
 3. クライアントがトークンを保持  
 4. 各APIリクエスト時にAuthorizationヘッダへ付与  
-
----
-
-## ■ Security
-
-- pwdlib + argon2によるパスワードハッシュ化
-- JWT署名によるトークン改ざん防止
-- ロールベース認可（RBAC）によるアクセス制御
-- 環境変数による機密情報管理（.env）
-- HTTPS通信前提（ALB経由）
 
 ---
 
@@ -359,7 +379,7 @@ docker compose up --build
 
 ---
 
-##  ■ EC2 Deployment
+## ■ EC2 Deployment
 
 EC2環境では、アプリケーションコンテナのみを起動し、DBはAmazon RDS for PostgreSQLを使用します。
 
@@ -384,30 +404,10 @@ docker run -d \
 
 ---
 
-## ■ Error Handling
-
-以下のカスタム例外を使用
-
-- AppServiceError（基底例外）
-- ResourceNotFoundError
-- ConflictError
-- AuthenticationError
-- AuthorizationError
-
----
-
-## ■ Health Check
-
-### GET /health
-
-ALBのターゲットグループのヘルスチェックに使用
-
----
-
 ## ■ Future Improvements
 
+- Alembicによるマイグレーション管理
 - リフレッシュトークン実装
 - RBAC（権限管理）の高度化
 - APIレート制限
-- Alembicによるマイグレーション管理
 - paginationの実装

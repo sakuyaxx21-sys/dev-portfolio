@@ -6,6 +6,7 @@ def test_create_user(client):
     payload = {
         "name": "Test User Create",
         "email": make_email("test_create_user"),
+        "password": "password123",
     }
 
     response = client.post("/api/v1/users", json=payload)
@@ -22,6 +23,7 @@ def test_get_users(client):
     payload = {
         "name": "Test User List",
         "email": make_email("test_get_users"),
+        "password": "password123",
     }
     client.post("/api/v1/users", json=payload)
 
@@ -40,6 +42,7 @@ def test_get_user(client):
     payload = {
         "name": "Test User Detail",
         "email": make_email("test_get_user"),
+        "password": "password123",
     }
     create_response = client.post("/api/v1/users", json=payload)
     created_user = create_response.json()
@@ -66,6 +69,7 @@ def test_create_user_email_already_exists(client):
     payload = {
         "name": "Test User Duplicate",
         "email": make_email("test_duplicate_user"),
+        "password": "password123",
     }
 
     first_response = client.post("/api/v1/users", json=payload)
@@ -80,6 +84,7 @@ def test_update_user(client):
     create_payload = {
         "name": "Before Update",
         "email": make_email("before_update"),
+        "password": "password123",
     }
     create_response = client.post("/api/v1/users", json=create_payload)
     created_user = create_response.json()
@@ -116,6 +121,7 @@ def test_update_user_email_already_exists(client):
     payload_1 = {
         "name": "User One",
         "email": make_email("user_one"),
+        "password": "password123",
     }
     response_1 = client.post("/api/v1/users", json=payload_1)
     user_1 = response_1.json()
@@ -123,6 +129,7 @@ def test_update_user_email_already_exists(client):
     payload_2 = {
         "name": "User Two",
         "email": make_email("user_two"),
+        "password": "password123",
     }
     response_2 = client.post("/api/v1/users", json=payload_2)
     user_2 = response_2.json()
@@ -142,6 +149,7 @@ def test_delete_user(client):
     payload = {
         "name": "Delete Target",
         "email": make_email("delete_target"),
+        "password": "password123",
     }
     create_response = client.post("/api/v1/users", json=payload)
     created_user = create_response.json()

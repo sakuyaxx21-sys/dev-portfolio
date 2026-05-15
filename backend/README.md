@@ -16,21 +16,23 @@ JWT 認証によるステートレスな認証方式を採用しています。
 
 ## ■ Architecture（Backend）
 
-FastAPI Router  
-↓  
-Dependencies（認証 / DB Session）  
-↓  
-Service Layer（ビジネスロジック）  
-↓  
-SQLAlchemy ORM  
-↓  
+Users<br>
+↓<br>
+FastAPI Router<br>
+↓<br>
+Dependencies（認証 / DB Session）<br>
+↓<br>
+Service Layer（ビジネスロジック）<br>
+↓<br>
+SQLAlchemy ORM<br>
+↓<br>
 PostgreSQL（RDS）
 
 ---
 
 ## ■ Request Flow
 
-1. Client → FastAPI Router  
+1. Users → FastAPI Router  
 2. Router → Dependencies（認証 / DB Session）  
 3. Router → Service Layer  
 4. Service → SQLAlchemy ORM  
@@ -68,6 +70,8 @@ PostgreSQL（RDS）
 - Pydantic
 - PostgreSQL
 - python-jose（JWT）
+- OAuth2PasswordBearer / OAuth2PasswordRequestForm
+- python-multipart（OAuth2 form data）
 - pwdlib（argon2によるパスワードハッシュ化）
 
 ---
@@ -133,6 +137,8 @@ backend/
 
 ## ■ API Specification
 
+詳細なAPI仕様およびリクエスト/レスポンス確認は Swagger UI を参照してください。
+
 本APIは `/api/v1` をプレフィックスとしたREST APIです。  
 認証が必要なエンドポイントでは、HTTPヘッダーにJWTトークンを付与します。
 
@@ -151,16 +157,41 @@ backend/
 - ユーザーログインを行い、JWTトークンを取得
 
 **Request**
+```json
 {
   "email": "user@example.com",
   "password": "password123"
 }
+```
 
 **Response**
+```json
 {
   "access_token": "jwt_token",
   "token_type": "bearer"
 }
+```
+
+---
+
+### POST /api/v1/auth/token
+- Swagger UI の OAuth2 Password Flow 用トークン取得API
+- `OAuth2PasswordRequestForm` により `application/x-www-form-urlencoded` を受け取る
+- `username` には email を指定する
+
+**Request（form-data）**
+```text
+username=user@example.com
+password=password123
+```
+
+**Response**
+```json
+{
+  "access_token": "jwt_token",
+  "token_type": "bearer"
+}
+```
 
 </details>
 
@@ -173,19 +204,23 @@ backend/
 - 新規ユーザーを作成
 
 **Request**
+```json
 {
   "name": "User",
   "email": "user@example.com",
   "password": "password123"
 }
+```
 
 **Response**
+```json
 {
   "id": 1,
   "name": "User",
   "email": "user@example.com",
   "role": "user"
 }
+```
 
 </details>
 
@@ -198,14 +233,17 @@ backend/
 - 交通費精算申請を作成（認証必要）
 
 **Request**
+```json
 {
   "title": "交通費精算",
   "content": "東京-大阪 新幹線代",
   "amount": 15000,
   "application_date": "2026-04-01"
 }
+```
 
 **Response**
+```json
 {
   "id": 1,
   "user_id": 1,
@@ -215,6 +253,7 @@ backend/
   "application_date": "2026-04-01",
   "status": "pending"
 }
+```
 
 ---
 
@@ -222,6 +261,7 @@ backend/
 - ログインユーザーの申請一覧を取得（認証必要）
 
 **Response**
+```json
 [
   {
     "id": 1,
@@ -229,6 +269,7 @@ backend/
     "status": "pending"
   }
 ]
+```
 
 </details>
 
@@ -246,16 +287,20 @@ backend/
 - 申請のステータスを更新（admin権限）
 
 **Request（承認）**
+```json
 {
   "status": "approved",
   "reject_reason": null
 }
+```
 
 **Request（却下）**
+```json
 {
   "status": "rejected",
   "reject_reason": "領収書不備"
 }
+```
 
 </details>
 
@@ -269,9 +314,11 @@ backend/
 - ALBターゲットグループのヘルスチェックに使用
 
 **Response**
+```json
 {
   "status": "ok"
 }
+```
 
 </details>
 
@@ -321,11 +368,24 @@ backend/
 
 ### 認証方式
 - JWT（JSON Web Token）
+- OAuth2 Password Flow
+- Bearer Token
 
 ### 利用方法（使い方）
 Authorizationヘッダにトークンを付与
 
 `Authorization: Bearer {access_token}`
+
+Swagger UI（`/docs`）では `Authorize` ボタンから OAuth2 Password Flow を利用します。  
+`username` には登録済みの email を入力します。
+
+---
+
+### 実装方式
+- `OAuth2PasswordBearer` により Authorization ヘッダの Bearer Token を取得
+- `OAuth2PasswordRequestForm` により Swagger UI 用のログインフォームを受け取る
+- `/api/v1/auth/login` は JSON ログイン用として維持
+- `/api/v1/auth/token` は Swagger UI / OAuth2 Password Flow 用として利用
 
 ---
 
@@ -375,7 +435,8 @@ docker compose up --build
 
 ### アクセス
 
-- Local: [http://localhost:8000/docs](http://localhost:8000/docs)
+- Local:
+  - API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 

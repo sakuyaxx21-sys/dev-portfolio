@@ -1,18 +1,21 @@
 from pathlib import Path
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+TEST_DB_PATH = BASE_DIR / "pytest.db"
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{TEST_DB_PATH}"
+
+os.environ["DATABASE_URL"] = SQLALCHEMY_DATABASE_URL
+
 from app.main import app
 from app.db.base import Base
 from app.db.session import get_db
 from app.db import models  # noqa: F401
-
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-TEST_DB_PATH = BASE_DIR / "test_test.db"
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{TEST_DB_PATH}"
 
 
 engine = create_engine(

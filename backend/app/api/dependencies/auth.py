@@ -1,6 +1,8 @@
-from fastapi import Depends, Header
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.db.session import get_db
 from app.core.security import verify_token
 from app.models.users import User
@@ -12,17 +14,19 @@ from app.core.exceptions import (
 )
 
 
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.api_v1_prefix}/auth/token",
+    auto_error=False,
+)
+
+
 def get_current_user(
-    authorization: str | None = Header(default=None, alias="Authorization"),
+    token: str | None = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> User:
-    if authorization is None:
+    if token is None:
         raise AuthorizationHeaderMissingError("Authorization header is missing")
-    
-    if not authorization.startswith("Bearer "):
-        raise InvalidTokenError("Invalid token format")
-    
-    token = authorization.replace("Bearer ", "")
+
     email = verify_token(token)
 
     if email is None:

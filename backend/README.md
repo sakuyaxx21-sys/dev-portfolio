@@ -50,10 +50,10 @@ PostgreSQL（RDS）
 
 ### ユーザー機能
 - 交通費精算申請の作成
-- 自分の申請一覧取得
+- 自分の申請一覧取得（pagination対応）
 
 ### 管理者機能
-- 全申請一覧取得
+- 全申請一覧取得（検索 / 絞り込み / pagination対応）
 - 申請承認 / 却下
 
 ### その他
@@ -259,16 +259,44 @@ password=password123
 
 ### GET /api/v1/applications/me  
 - ログインユーザーの申請一覧を取得（認証必要）
+- `page` / `limit` によるpaginationに対応
+
+**Request例**
+```text
+GET /api/v1/applications/me?page=1&limit=10
+```
+
+**Query Parameters**
+
+| name  | default | validation | 説明 |
+|-------|---------|------------|------|
+| page  | 1       | 1以上       | 取得するページ番号 |
+| limit | 10      | 1〜100      | 1ページあたりの取得件数 |
 
 **Response**
 ```json
-[
-  {
-    "id": 1,
-    "title": "交通費精算",
-    "status": "pending"
-  }
-]
+{
+  "items": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "title": "交通費精算",
+      "content": "東京-大阪 新幹線代",
+      "amount": 15000,
+      "application_date": "2026-04-01",
+      "status": "pending",
+      "reject_reason": null,
+      "reviewd_by": null,
+      "reviewed_at": null,
+      "created_at": "2026-04-01T00:00:00",
+      "updated_at": "2026-04-01T00:00:00"
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "limit": 10,
+  "total_pages": 1
+}
 ```
 
 </details>
@@ -280,6 +308,49 @@ password=password123
 
 ### GET /api/v1/admin/applications  
 - 全ユーザーの申請一覧を取得（admin権限）
+- `status` / `user_id` / `keyword` で絞り込み可能
+- `page` / `limit` によるpaginationに対応
+
+**Request例**
+```text
+GET /api/v1/admin/applications?status=pending&page=1&limit=10
+```
+
+**Query Parameters**
+
+| name    | default | validation | 説明 |
+|---------|---------|------------|------|
+| status  | -       | -          | 申請ステータスで絞り込み |
+| user_id | -       | -          | ユーザーIDで絞り込み |
+| keyword | -       | -          | 申請タイトルでキーワード検索 |
+| page    | 1       | 1以上       | 取得するページ番号 |
+| limit   | 10      | 1〜100      | 1ページあたりの取得件数 |
+
+**Response**
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "title": "交通費精算",
+      "content": "東京-大阪 新幹線代",
+      "amount": 15000,
+      "application_date": "2026-04-01",
+      "status": "pending",
+      "reject_reason": null,
+      "reviewd_by": null,
+      "reviewed_at": null,
+      "created_at": "2026-04-01T00:00:00",
+      "updated_at": "2026-04-01T00:00:00"
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "limit": 10,
+  "total_pages": 1
+}
+```
 
 ---
 
@@ -357,10 +428,14 @@ password=password123
 
 #### バリデーション / リソースエラー
 
-| ステータス | 内容                             |
-|------------|----------------------------------|
-| 400        | リクエスト不正（入力値エラー等） |
-| 404        | リソースが存在しない             |
+| ステータス | 内容                                           |
+|------------|------------------------------------------------|
+| 400        | リクエスト不正（業務ルール上の入力エラー等） |
+| 404        | リソース、またはAPIパスが存在しない           |
+| 405        | 許可されていないHTTPメソッド                  |
+| 422        | FastAPI / Pydantic によるリクエスト検証エラー |
+
+例: request body の必須項目不足、型不一致、`page` が 1 未満、`limit` が 1〜100 の範囲外の場合は 422 を返します。
 
 ---
 
@@ -471,4 +546,3 @@ docker run -d \
 - リフレッシュトークン実装
 - RBAC（権限管理）の高度化
 - APIレート制限
-- paginationの実装

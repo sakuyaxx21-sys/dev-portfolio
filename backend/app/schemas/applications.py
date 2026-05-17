@@ -30,3 +30,11 @@ class ApplicationResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ApplicationListResponse(BaseModel):
+    items: list[ApplicationResponse]
+    total: int
+    page: int
+    limit: int
+    total_pages: int

@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.dependencies.auth import get_current_admin
 from app.db.session import get_db
 from app.models.users import User
 from app.schemas.applications import (
+    ApplicationListResponse,
     ApplicationResponse,
     ApplicationStatusUpdate,
 )
@@ -18,13 +19,15 @@ router = APIRouter()
 
 @router.get(
     "/applications", 
-    response_model=list[ApplicationResponse],
+    response_model=ApplicationListResponse,
     dependencies=[Depends(get_current_admin)],
 )
 def get_all_applications(
     status: str | None = None,
     user_id: int | None = None,
     keyword: str | None = None,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
     return get_all_applications_service(
@@ -32,6 +35,8 @@ def get_all_applications(
         status=status, 
         user_id=user_id, 
         keyword=keyword,
+        page=page,
+        limit=limit,
     )
 
 

@@ -40,14 +40,14 @@ def create_application_service(
 def get_my_applications_service(
     db: Session, 
     current_user: User,
-) -> list[Application]:
-    applications = (
+    page: int = 1,
+    limit: int = 10,
+) -> dict[str, object]:
+    query = (
         db.query(Application)
         .filter(Application.user_id == current_user.id)
-        .order_by(Application.created_at.desc())
-        .all()
     )
-    return applications
+    return paginate_applications(query=query, page=page, limit=limit)
 
 
 def get_all_applications_service(
@@ -55,7 +55,9 @@ def get_all_applications_service(
     status: str | None = None,
     user_id: int | None = None,
     keyword: str | None = None,
-) -> list[Application]:
+    page: int = 1,
+    limit: int = 10,
+) -> dict[str, object]:
     query = db.query(Application)
 
     if status:
@@ -67,8 +69,31 @@ def get_all_applications_service(
     if keyword:
         query = query.filter(Application.title.contains(keyword))
 
-    applications = query.order_by(Application.created_at.desc()).all()
-    return applications
+    return paginate_applications(query=query, page=page, limit=limit)
+
+
+def paginate_applications(
+    query,
+    page: int,
+    limit: int,
+) -> dict[str, object]:
+    total = query.count()
+    total_pages = (total + limit - 1) // limit if total > 0 else 0
+    offset = (page - 1) * limit
+    applications = (
+        query.order_by(Application.created_at.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+
+    return {
+        "items": applications,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "total_pages": total_pages,
+    }
 
 
 def update_application_status_service(

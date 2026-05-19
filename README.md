@@ -47,6 +47,7 @@ RDS（PostgreSQL）
 ### Backend
 - FastAPI
 - SQLAlchemy
+- Alembic
 - Pydantic
 - PostgreSQL
 - JWT認証（OAuth2 Password Flow / python-jose）
@@ -107,6 +108,7 @@ RDS（PostgreSQL）
 ```text
 .
 ├── backend/                                     # FastAPIバックエンド（Docker / テスト含む）
+│   ├── alembic/                                 # DBマイグレーション管理
 │   ├── app/                                     # アプリケーション本体
 │   ├── tests/                                   # テストコード
 │   ├── docker-compose.yml                       # ローカル開発用
@@ -132,7 +134,8 @@ RDS（PostgreSQL）
 
 ```bash
 cd backend
-docker compose up --build
+docker compose up -d --build
+docker compose exec app alembic upgrade head
 ```
 
 ### アクセス

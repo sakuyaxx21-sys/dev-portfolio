@@ -27,7 +27,7 @@ def create_application_service(
         application_date=application.application_date,
         status="pending",
         reject_reason=None,
-        reviewd_by=None,
+        reviewed_by=None,
         reviewed_at=None,
     )
 
@@ -117,7 +117,7 @@ def update_application_status_service(
         raise InvalidApplicationStatusError("Invalid application status")
 
     application.status = payload.status
-    application.reviewd_by = admin_user.id
+    application.reviewed_by = admin_user.id
     application.reviewed_at = datetime.now(timezone.utc)
 
     if payload.status == "rejected":

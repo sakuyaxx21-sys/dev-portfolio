@@ -52,14 +52,19 @@ EOF
   -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json \
   -s
 
-docker build -t ${app_name}-backend .
+docker build -t ${app_name}-app .
 
-docker stop ${app_name}-backend || true
-docker rm ${app_name}-backend || true
+docker run --rm \
+  --env-file .env.ec2 \
+  ${app_name}-app \
+  alembic upgrade head
+
+docker stop ${app_name}-app || true
+docker rm ${app_name}-app || true
 
 docker run -d \
-  --name ${app_name}-backend \
+  --name ${app_name}-app \
   -p 8000:8000 \
   --env-file .env.ec2 \
   --restart unless-stopped \
-  ${app_name}-backend
+  ${app_name}-app

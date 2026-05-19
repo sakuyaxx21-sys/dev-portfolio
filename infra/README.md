@@ -192,21 +192,27 @@ EC2 起動時に user data で以下を実行します。
 - CloudWatch Agent 設定ファイルを配置
 - CloudWatch Agent を起動
 - Docker イメージをビルド
+- Alembic migrationを適用
 - 既存コンテナを停止・削除
 - FastAPI アプリケーションコンテナを起動
 
 ```bash
-docker build -t ${app_name}-backend .
+docker build -t ${app_name}-app .
 
-docker stop ${app_name}-backend || true
-docker rm ${app_name}-backend || true
+docker run --rm \
+  --env-file .env.ec2 \
+  ${app_name}-app \
+  alembic upgrade head
+
+docker stop ${app_name}-app || true
+docker rm ${app_name}-app || true
 
 docker run -d \
-  --name ${app_name}-backend \
+  --name ${app_name}-app \
   -p 8000:8000 \
   --env-file .env.ec2 \
   --restart unless-stopped \
-  ${app_name}-backend
+  ${app_name}-app
 ```
 
 ---

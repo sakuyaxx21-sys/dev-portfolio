@@ -24,7 +24,7 @@ class ApplicationResponse(BaseModel):
     application_date: date
     status: str
     reject_reason: str | None
-    reviewd_by: int | None
+    reviewed_by: int | None
     reviewed_at: datetime | None
     created_at: datetime
     updated_at: datetime

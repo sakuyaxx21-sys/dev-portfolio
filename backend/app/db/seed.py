@@ -12,7 +12,7 @@ def seed():
         admin = db.query(User).filter(User.email == "admin@example.com").first()
         
         if admin:
-            print("admin already exists")
+            print("admin user already exists")
             return
         
         admin = User(

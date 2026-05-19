@@ -1,21 +1,27 @@
 services:
   db:
     image: postgres:16
-    container_name: portfolio-db
+    container_name: dev-portfolio-db
     environment:
-      POSTGRES_USER: app_user
-      POSTGRES_PASSWORD: app_password
-      POSTGRES_DB: app_db
+      POSTGRES_USER: db_username
+      POSTGRES_PASSWORD: db_password
+      POSTGRES_DB: db_name
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U db_username -d db_name"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   app:
     build: .
-    container_name: portfolio-app
+    container_name: dev-portfolio-app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
     ports:

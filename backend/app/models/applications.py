@@ -35,7 +35,7 @@ class Application(Base):
 
     reject_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    reviewd_by: Mapped[int | None] = mapped_column(
+    reviewed_by: Mapped[int | None] = mapped_column(
         ForeignKey("users.id"), 
         nullable=True,
     )

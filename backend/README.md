@@ -24,6 +24,8 @@ Dependencies（認証 / DB Session）<br>
 ↓<br>
 Service Layer（ビジネスロジック）<br>
 ↓<br>
+Repository Layer（DBアクセス）<br>
+↓<br>
 SQLAlchemy ORM<br>
 ↓<br>
 PostgreSQL（RDS）
@@ -35,9 +37,10 @@ PostgreSQL（RDS）
 1. Users → FastAPI Router  
 2. Router → Dependencies（認証 / DB Session）  
 3. Router → Service Layer  
-4. Service → SQLAlchemy ORM  
-5. SQLAlchemy ORM → PostgreSQL（RDS）  
-6. 処理結果をレスポンスとして返却  
+4. Service → Repository Layer  
+5. Repository → SQLAlchemy ORM  
+6. SQLAlchemy ORM → PostgreSQL（RDS）  
+7. 処理結果をレスポンスとして返却  
 
 ---
 
@@ -81,10 +84,11 @@ PostgreSQL（RDS）
 
 ### レイヤ構成
 
-- Router / Dependencies / Service / DB のレイヤ構成
+- Router / Dependencies / Service / Repository / DB のレイヤ構成
 - Dependencies で認証ユーザー取得・DB Session 注入を実施
-- Service 層でビジネスロジックを分離
-- Service 層から SQLAlchemy ORM を利用して DB 操作を実行
+- Service 層でビジネスロジック・例外判定・認可判断を担当
+- Repository 層でDBアクセス処理を集約
+- Repository 層から SQLAlchemy ORM を利用してDB操作を実行
 - SQLAlchemy ORM による DB 抽象化
 - Custom Exception による例外責務分離
 - JWT 認証によるステートレス設計
@@ -124,6 +128,7 @@ backend/
 │   ├── core/                                    # 設定・セキュリティ・共通処理
 │   ├── db/                                      # DB接続・初期化処理
 │   ├── models/                                  # ORMモデル定義
+│   ├── repositories/                            # DBアクセス処理
 │   ├── schemas/                                 # Pydanticスキーマ
 │   ├── services/                                # ビジネスロジック
 │   └── main.py                                  # FastAPIエントリーポイント

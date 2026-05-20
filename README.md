@@ -37,8 +37,9 @@ RDS（PostgreSQL）
 1. Users → ALB  
 2. ALB → EC2（FastAPI）  
 3. FastAPI → Service Layer  
-4. Service → PostgreSQL（RDS）  
-5. 処理結果をレスポンスとして返却  
+4. Service → Repository Layer  
+5. Repository → PostgreSQL（RDS）  
+6. 処理結果をレスポンスとして返却  
 
 ---
 

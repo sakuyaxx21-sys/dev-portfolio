@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
-from app.models.applications import Application
 from app.models.users import User
 from app.schemas.applications import (
     ApplicationCreate,
@@ -12,6 +11,8 @@ from app.core.exceptions import (
     ApplicationNotFoundError,
     InvalidApplicationStatusError,
 )
+from app.models.applications import Application
+from app.repositories import application_repository
 
 
 def create_application_service(
@@ -19,7 +20,8 @@ def create_application_service(
     current_user: User,
     application: ApplicationCreate, 
 ) -> Application:
-    db_application = Application(
+    return application_repository.create_application(
+        db=db,
         user_id=current_user.id,
         title=application.title,
         content=application.content,
@@ -31,11 +33,6 @@ def create_application_service(
         reviewed_at=None,
     )
 
-    db.add(db_application)
-    db.commit()
-    db.refresh(db_application)
-    return db_application
-
 
 def get_my_applications_service(
     db: Session, 
@@ -43,11 +40,15 @@ def get_my_applications_service(
     page: int = 1,
     limit: int = 10,
 ) -> dict[str, object]:
-    query = (
-        db.query(Application)
-        .filter(Application.user_id == current_user.id)
+    query = application_repository.build_user_applications_query(
+        db=db,
+        user_id=current_user.id,
     )
-    return paginate_applications(query=query, page=page, limit=limit)
+    return application_repository.paginate_applications(
+        query=query,
+        page=page,
+        limit=limit,
+    )
 
 
 def get_all_applications_service(
@@ -58,42 +59,17 @@ def get_all_applications_service(
     page: int = 1,
     limit: int = 10,
 ) -> dict[str, object]:
-    query = db.query(Application)
-
-    if status:
-        query = query.filter(Application.status == status)
-
-    if user_id:
-        query = query.filter(Application.user_id == user_id)
-
-    if keyword:
-        query = query.filter(Application.title.contains(keyword))
-
-    return paginate_applications(query=query, page=page, limit=limit)
-
-
-def paginate_applications(
-    query,
-    page: int,
-    limit: int,
-) -> dict[str, object]:
-    total = query.count()
-    total_pages = (total + limit - 1) // limit if total > 0 else 0
-    offset = (page - 1) * limit
-    applications = (
-        query.order_by(Application.created_at.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
+    query = application_repository.build_applications_query(
+        db=db,
+        status=status,
+        user_id=user_id,
+        keyword=keyword,
     )
-
-    return {
-        "items": applications,
-        "total": total,
-        "page": page,
-        "limit": limit,
-        "total_pages": total_pages,
-    }
+    return application_repository.paginate_applications(
+        query=query,
+        page=page,
+        limit=limit,
+    )
 
 
 def update_application_status_service(
@@ -102,10 +78,9 @@ def update_application_status_service(
     admin_user: User,
     payload: ApplicationStatusUpdate,
 ) -> Application:
-    application = (
-        db.query(Application)
-        .filter(Application.id == application_id)
-        .first()
+    application = application_repository.get_application_by_id(
+        db=db,
+        application_id=application_id,
     )
 
     if application is None:
@@ -116,15 +91,17 @@ def update_application_status_service(
     if payload.status not in ("approved", "rejected"):
         raise InvalidApplicationStatusError("Invalid application status")
 
-    application.status = payload.status
-    application.reviewed_by = admin_user.id
-    application.reviewed_at = datetime.now(timezone.utc)
+    reject_reason = (
+        payload.reject_reason
+        if payload.status == "rejected"
+        else None
+    )
 
-    if payload.status == "rejected":
-        application.reject_reason = payload.reject_reason
-    else:
-        application.reject_reason = None
-
-    db.commit()
-    db.refresh(application)
-    return application
+    return application_repository.update_application_status(
+        db=db,
+        application=application,
+        status=payload.status,
+        reviewed_by=admin_user.id,
+        reviewed_at=datetime.now(timezone.utc),
+        reject_reason=reject_reason,
+    )

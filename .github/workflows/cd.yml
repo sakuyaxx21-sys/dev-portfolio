@@ -1,0 +1,89 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      DOCKER_IMAGE: ${{ vars.DOCKER_IMAGE_NAME }}
+      IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+      SSM_TARGET_KEY: ${{ vars.SSM_TARGET_KEY }}
+      SSM_TARGET_VALUE: ${{ vars.SSM_TARGET_VALUE }}
+      APP_CONTAINER_NAME: ${{ vars.APP_CONTAINER_NAME }}
+      APP_ENV_FILE: ${{ vars.APP_ENV_FILE }}
+      APP_PORT: ${{ vars.APP_PORT }}
+      APP_HEALTH_URL: ${{ vars.APP_HEALTH_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Validate deployment configuration
+        run: |
+          required_env_vars=(
+            AWS_REGION
+            DOCKER_IMAGE
+            SSM_TARGET_KEY
+            SSM_TARGET_VALUE
+            APP_CONTAINER_NAME
+            APP_ENV_FILE
+            APP_PORT
+            APP_HEALTH_URL
+          )
+
+          for env_var in "${required_env_vars[@]}"; do
+            if [ -z "${!env_var}" ]; then
+              echo "${env_var} is required" >&2
+              exit 1
+            fi
+          done
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKER_IMAGE }}:latest
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to EC2 via SSM
+        run: bash .github/scripts/deploy-ec2-via-ssm.sh
+
+      - name: Check public health endpoint
+        run: curl -fsS "$APP_HEALTH_URL"

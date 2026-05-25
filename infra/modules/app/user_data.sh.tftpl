@@ -2,17 +2,13 @@
 set -xe
 
 dnf update -y
-dnf install -y docker git jq awscli amazon-cloudwatch-agent
+dnf install -y docker jq awscli amazon-cloudwatch-agent
 
 systemctl enable docker
 systemctl start docker
 
 mkdir -p ${app_dir}
 cd ${app_dir}
-
-git clone ${github_repo_url} .
-
-cd backend
 
 APP_SECRET_JSON=$(aws secretsmanager get-secret-value \
   --secret-id ${app_secret_name} \
@@ -52,11 +48,11 @@ EOF
   -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json \
   -s
 
-docker build -t ${app_name}-app .
+docker pull ${docker_image_name}:${docker_image_tag}
 
 docker run --rm \
   --env-file .env.ec2 \
-  ${app_name}-app \
+  ${docker_image_name}:${docker_image_tag} \
   alembic upgrade head
 
 docker stop ${app_name}-app || true
@@ -67,4 +63,4 @@ docker run -d \
   -p 8000:8000 \
   --env-file .env.ec2 \
   --restart unless-stopped \
-  ${app_name}-app
+  ${docker_image_name}:${docker_image_tag}

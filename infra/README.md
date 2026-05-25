@@ -39,6 +39,7 @@ RDS PostgreSQL（Private DB Subnet）
 ## ■ Tech Stack（Infrastructure）
 
 - Terraform
+- Amazon S3（Terraform State / ALB Access Logs）
 - AWS VPC（Public / Private Subnet）
 - AWS Internet Gateway
 - AWS NAT Gateway
@@ -47,15 +48,15 @@ RDS PostgreSQL（Private DB Subnet）
 - AWS Application Load Balancer
 - AWS EC2 Auto Scaling
 - AWS RDS for PostgreSQL
-- AWS WAF
 - AWS IAM / Security Group
+- AWS WAF
 - AWS Systems Manager
 - AWS Secrets Manager
 - AWS KMS
 - AWS CloudWatch / SNS
 - AWS Chatbot
 - Slack
-- Amazon S3（Terraform State / ALB Access Logs）
+- GitHub Actions OIDC
 
 ---
 
@@ -130,11 +131,13 @@ Backend 用 S3 バケットは `infra/bootstrap` で作成します。
 Terraform 1.10 以降でサポートされた `use_lockfile` を使用し、  
 DynamoDB を用いないシンプルな state lock 構成を採用しています。
 
+ローカルで特定のAWS CLI profileを利用する場合は、`AWS_PROFILE` を指定して実行します。
+
 ```bash
 cd infra/bootstrap
-terraform init
-terraform plan
-terraform apply
+AWS_PROFILE=terraform-dev terraform init
+AWS_PROFILE=terraform-dev terraform plan
+AWS_PROFILE=terraform-dev terraform apply
 ```
 
 ---
@@ -150,19 +153,19 @@ cd infra/envs/dev
 ### 2. Terraform 初期化
 
 ```bash
-terraform init
+AWS_PROFILE=terraform-dev terraform init
 ```
 
 ### 3. 実行計画の確認
 
 ```bash
-terraform plan
+AWS_PROFILE=terraform-dev terraform plan
 ```
 
 ### 4. リソース作成
 
 ```bash
-terraform apply
+AWS_PROFILE=terraform-dev terraform apply
 ```
 
 ※ 本番環境へ適用する場合は `infra/envs/prod` を使用してください。
@@ -179,29 +182,27 @@ EC2 起動時に user data で以下を実行します。
 
 - 必要パッケージのインストール
   - Docker
-  - Git
   - jq
   - AWS CLI
   - CloudWatch Agent
 - Docker サービスの有効化・起動
-- GitHub リポジトリからアプリケーションコードを取得
 - Secrets Manager から以下の値を取得
   - アプリケーション Secret
   - RDS master user secret
 - RDS 接続情報をもとに `.env.ec2` を生成
 - CloudWatch Agent 設定ファイルを配置
 - CloudWatch Agent を起動
-- Docker イメージをビルド
+- Docker Hubからアプリケーションimageをpull
 - Alembic migrationを適用
 - 既存コンテナを停止・削除
 - FastAPI アプリケーションコンテナを起動
 
 ```bash
-docker build -t ${app_name}-app .
+docker pull ${docker_image_name}:${docker_image_tag}
 
 docker run --rm \
   --env-file .env.ec2 \
-  ${app_name}-app \
+  ${docker_image_name}:${docker_image_tag} \
   alembic upgrade head
 
 docker stop ${app_name}-app || true
@@ -212,8 +213,97 @@ docker run -d \
   -p 8000:8000 \
   --env-file .env.ec2 \
   --restart unless-stopped \
-  ${app_name}-app
+  ${docker_image_name}:${docker_image_tag}
 ```
+
+---
+
+## ■ Terraform CI
+
+GitHub Actions CIでは、Pull Request作成時およびmainブランチへのpush時にTerraformの基本チェックを実行します。
+
+### 実行内容
+
+- Terraformコードのformat check（`terraform fmt -check -recursive infra`）
+- `infra/envs/dev` の `terraform validate`
+- `infra/envs/prod` の `terraform validate`
+
+CIでは `terraform init -backend=false` を使用し、S3 Backendへ接続せずに構成検証を行います。
+
+---
+
+## ■ Terraform CD
+
+GitHub Actions Terraform CDでは、手動実行によりTerraform plan / applyを実行します。
+
+### 実行内容
+
+- 対象環境（dev / prod）の選択
+- 実行アクション（plan / apply）の選択
+- GitHub Actions OIDCによるAWS認証
+- Terraform Backendの初期化
+- Terraform format check
+- Terraform validate
+- Terraform plan
+- Terraform apply（apply選択時のみ）
+
+### GitHub側で設定する値
+
+Secrets:
+
+- `AWS_TERRAFORM_ROLE_ARN`
+
+Variables:
+
+- `AWS_REGION`
+- `TF_PROJECT`
+- `TF_DOCKER_IMAGE_NAME`
+- `TF_DOCKER_IMAGE_TAG`
+- `TF_GITHUB_ACTIONS_REPOSITORY`
+- `TF_DOMAIN_NAME`
+- `TF_APP_DOMAIN_NAME`
+- `TF_SLACK_TEAM_ID`
+- `TF_SLACK_CHANNEL_ID`
+- `TF_GITHUB_ACTIONS_OIDC_PROVIDER_ARN`（既存OIDC Providerを利用する環境のみ）
+
+### 運用方針
+
+`apply` は破壊的変更を含む可能性があるため、GitHub Environmentsの承認設定を利用して実行前にレビューします。
+
+---
+
+## ■ GitHub Actions CD
+
+GitHub Actions CDでは、Terraformで作成したOIDC用IAM Roleを利用してAWSへ認証します。
+
+GitHub Actions OIDC ProviderはAWSアカウント単位で共有するため、同一AWSアカウント内の別環境で既存Providerを利用する場合は `github_actions_oidc_provider_arn` に既存ARNを指定します。
+
+### 実行内容
+
+- Docker imageのbuild / push
+- AWS Systems Manager Run CommandによるEC2デプロイ
+- Alembic migrationの適用
+- アプリケーションコンテナの再起動
+- デプロイ後のヘルスチェック
+
+### GitHub側で設定する値
+
+Secrets:
+
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
+- `AWS_ROLE_ARN`
+
+Variables:
+
+- `AWS_REGION`
+- `DOCKER_IMAGE_NAME`
+- `SSM_TARGET_KEY`
+- `SSM_TARGET_VALUE`
+- `APP_CONTAINER_NAME`
+- `APP_ENV_FILE`
+- `APP_PORT`
+- `APP_HEALTH_URL`
 
 ---
 
@@ -245,15 +335,18 @@ CloudWatch Alarm は SNS を経由し、AWS Chatbot で Slack に通知します
 
 ## ■ Outputs
 
-主な Terraform Output は以下です。
+代表的な Terraform Output は以下です。
 
-- ALB DNS Name
 - Application URL
 - Route 53 Record
+- ALB DNS Name
 - ACM Certificate ARN
 - RDS Endpoint
-- Auto Scaling Group Name
 - Secrets Manager Secret Name
+- Auto Scaling Group Name
+- GitHub Actions OIDC Provider ARN
+- GitHub Actions CD Role ARN
+- GitHub Actions Terraform Role ARN
 - SNS Topic ARN
 - CloudWatch Log Group Name
 
@@ -261,8 +354,7 @@ CloudWatch Alarm は SNS を経由し、AWS Chatbot で Slack に通知します
 
 ## ■ Future Improvements
 
-- GitHub Actions による Terraform plan / apply の自動化
-- Docker Hub を利用したコンテナイメージ配布
 - Blue / Green Deployment
+- Rollback自動化
 - CloudWatch Dashboard の整備
 - WAF ルールの追加・チューニング

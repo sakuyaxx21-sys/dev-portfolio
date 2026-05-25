@@ -58,6 +58,24 @@ output "app_asg_name" {
 }
 
 # ============================
+# IAM
+# ============================
+output "github_actions_oidc_provider_arn" {
+  description = "GitHub Actions OIDC provider ARN"
+  value       = module.security.github_actions_oidc_provider_arn
+}
+
+output "github_actions_cd_role_arn" {
+  description = "IAM Role ARN for GitHub Actions CD workflow"
+  value       = module.security.github_actions_cd_role_arn
+}
+
+output "github_actions_terraform_role_arn" {
+  description = "IAM Role ARN for GitHub Actions Terraform workflow"
+  value       = module.security.github_actions_terraform_role_arn
+}
+
+# ============================
 # Database
 # ============================
 output "db_endpoint" {

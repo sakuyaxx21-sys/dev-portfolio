@@ -146,7 +146,7 @@ backend/
 
 ## ■ API Specification
 
-詳細なAPI仕様およびリクエスト/レスポンス確認は Swagger UI を参照してください。
+詳細なAPI仕様およびリクエスト/レスポンス確認は Swagger UI (`/docs`) を参照してください。
 
 本APIは `/api/v1` をプレフィックスとしたREST APIです。  
 認証が必要なエンドポイントではJWT認証を使用します。
@@ -563,13 +563,22 @@ EC2環境では、アプリケーションコンテナのみを起動し、DBは
 
 RDS接続情報はTerraformで作成したSecrets Managerから取得し、EC2起動時に `.env.ec2` として生成します。
 
-### 1. Dockerイメージ作成
+### 1. Docker image取得
 
 ```bash
-docker build -t dev-portfolio-app .
+docker pull sakuyaxx21/dev-portfolio-app:latest
 ```
 
-### 2. コンテナ起動
+### 2. migration適用
+
+```bash
+docker run --rm \
+  --env-file .env.ec2 \
+  sakuyaxx21/dev-portfolio-app:latest \
+  alembic upgrade head
+```
+
+### 3. コンテナ起動
 
 ```bash
 docker run -d \
@@ -577,7 +586,7 @@ docker run -d \
   -p 8000:8000 \
   --env-file .env.ec2 \
   --restart unless-stopped \
-  dev-portfolio-app
+  sakuyaxx21/dev-portfolio-app:latest
 ```
 
 ---

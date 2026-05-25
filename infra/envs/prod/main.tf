@@ -26,6 +26,13 @@ module "security" {
 
   secret_recovery_window_in_days = var.secret_recovery_window_in_days
   kms_deletion_window_in_days    = var.kms_deletion_window_in_days
+
+  github_actions_repository            = var.github_actions_repository
+  github_actions_branch                = var.github_actions_branch
+  github_actions_oidc_audience         = var.github_actions_oidc_audience
+  github_actions_oidc_provider_arn     = var.github_actions_oidc_provider_arn
+  github_actions_oidc_thumbprint_list  = var.github_actions_oidc_thumbprint_list
+  github_actions_terraform_policy_arns = var.github_actions_terraform_policy_arns
 }
 
 # ============================
@@ -72,27 +79,28 @@ module "app" {
 
   app_dir  = "/opt/${var.env}-${var.project}"
   app_name = "${var.env}-${var.project}"
+  app_port = var.app_port
 
-  app_port         = var.app_port
+  docker_image_name = var.docker_image_name
+  docker_image_tag  = var.docker_image_tag
+
   instance_type    = var.instance_type
   root_volume_size = var.root_volume_size
-  github_repo_url  = var.github_repo_url
 
   asg_min_size         = var.asg_min_size
   asg_max_size         = var.asg_max_size
   asg_desired_capacity = var.asg_desired_capacity
 
-  app_secret_name = module.security.app_secret_name
+  db_host     = module.db.db_endpoint
+  db_port     = module.db.db_port
+  db_name     = var.db_name
+  db_username = var.db_username
 
-  db_host              = module.db.db_endpoint
-  db_port              = module.db.db_port
-  db_name              = var.db_name
-  db_username          = var.db_username
   db_master_secret_arn = module.db.db_master_secret_arn
+  app_secret_name      = module.security.app_secret_name
 
   app_ec2_instance_profile_name = module.security.app_ec2_instance_profile_name
-
-  web_acl_arn = module.security.waf_web_acl_arn
+  web_acl_arn                   = module.security.waf_web_acl_arn
 
   domain_name     = var.domain_name
   app_domain_name = var.app_domain_name

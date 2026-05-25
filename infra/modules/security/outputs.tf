@@ -14,6 +14,21 @@ output "app_ec2_instance_profile_name" {
   value       = aws_iam_instance_profile.app_ec2.name
 }
 
+output "github_actions_oidc_provider_arn" {
+  description = "GitHub Actions OIDC provider ARN"
+  value       = local.github_actions_oidc_provider_arn
+}
+
+output "github_actions_cd_role_arn" {
+  description = "IAM Role ARN for GitHub Actions CD workflow"
+  value       = aws_iam_role.github_actions_cd.arn
+}
+
+output "github_actions_terraform_role_arn" {
+  description = "IAM Role ARN for GitHub Actions Terraform workflow"
+  value       = aws_iam_role.github_actions_terraform.arn
+}
+
 # ============================
 # Secrets Manager
 # ============================

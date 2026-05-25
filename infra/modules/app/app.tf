@@ -1,5 +1,5 @@
 # ============================
-# Latest Amazon Linux 2023 AMI
+# Amazon Linux 2023 AMI
 # ============================
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
@@ -121,9 +121,10 @@ resource "aws_launch_template" "app" {
   vpc_security_group_ids = [var.app_security_group_id]
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tftpl", {
-    app_dir         = var.app_dir
-    app_name        = var.app_name
-    github_repo_url = var.github_repo_url
+    app_dir           = var.app_dir
+    app_name          = var.app_name
+    docker_image_name = var.docker_image_name
+    docker_image_tag  = var.docker_image_tag
 
     db_host              = var.db_host
     db_port              = var.db_port

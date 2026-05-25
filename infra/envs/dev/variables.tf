@@ -10,6 +10,7 @@ variable "aws_region" {
 variable "aws_profile" {
   description = "AWS CLI profile name"
   type        = string
+  default     = null
 }
 
 # ============================
@@ -73,6 +74,17 @@ variable "app_port" {
   default     = 8000
 }
 
+variable "docker_image_name" {
+  description = "Docker image name for application deployment"
+  type        = string
+}
+
+variable "docker_image_tag" {
+  description = "Docker image tag for application deployment"
+  type        = string
+  default     = "latest"
+}
+
 variable "instance_type" {
   description = "EC2 instance type for app servers"
   type        = string
@@ -82,12 +94,44 @@ variable "instance_type" {
 variable "root_volume_size" {
   description = "Root EBS volume size for app EC2 instances in GiB"
   type        = number
-  default     = 20
+  default     = 30
 }
 
-variable "github_repo_url" {
-  description = "GitHub repository URL for application deployment"
+# ============================
+# GitHub Actions OIDC
+# ============================
+variable "github_actions_repository" {
+  description = "GitHub repository allowed to assume the CD role in owner/name format"
   type        = string
+}
+
+variable "github_actions_branch" {
+  description = "GitHub branch allowed to assume the CD role"
+  type        = string
+}
+
+variable "github_actions_oidc_audience" {
+  description = "Audience value for GitHub Actions OIDC tokens"
+  type        = string
+  default     = "sts.amazonaws.com"
+}
+
+variable "github_actions_oidc_provider_arn" {
+  description = "Existing GitHub Actions OIDC provider ARN. When null, the security module creates the provider."
+  type        = string
+  default     = null
+}
+
+variable "github_actions_oidc_thumbprint_list" {
+  description = "Thumbprint list for GitHub Actions OIDC provider"
+  type        = list(string)
+  default     = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+}
+
+variable "github_actions_terraform_policy_arns" {
+  description = "IAM policy ARNs attached to the GitHub Actions Terraform role"
+  type        = list(string)
+  default     = ["arn:aws:iam::aws:policy/AdministratorAccess"]
 }
 
 # ============================
@@ -117,13 +161,13 @@ variable "asg_desired_capacity" {
 variable "db_name" {
   description = "Database name"
   type        = string
-  default     = "app_db"
+  default     = "db_name"
 }
 
 variable "db_username" {
   description = "Database master username"
   type        = string
-  default     = "app_user"
+  default     = "db_username"
 }
 
 variable "db_instance_class" {

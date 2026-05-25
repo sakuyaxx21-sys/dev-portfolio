@@ -70,6 +70,16 @@ variable "app_port" {
   type        = number
 }
 
+variable "docker_image_name" {
+  description = "Docker image name for application deployment"
+  type        = string
+}
+
+variable "docker_image_tag" {
+  description = "Docker image tag for application deployment"
+  type        = string
+}
+
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
@@ -78,11 +88,6 @@ variable "instance_type" {
 variable "root_volume_size" {
   description = "Root EBS volume size for app EC2 instances in GiB"
   type        = number
-}
-
-variable "github_repo_url" {
-  description = "GitHub repository URL for application deployment"
-  type        = string
 }
 
 # ============================

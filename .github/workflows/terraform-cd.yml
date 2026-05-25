@@ -42,6 +42,7 @@ jobs:
       TF_VAR_docker_image_name: ${{ vars.TF_DOCKER_IMAGE_NAME }}
       TF_VAR_docker_image_tag: ${{ vars.TF_DOCKER_IMAGE_TAG }}
       TF_VAR_github_actions_repository: ${{ vars.TF_GITHUB_ACTIONS_REPOSITORY }}
+      TF_VAR_github_actions_branch: ${{ vars.TF_GITHUB_ACTIONS_BRANCH }}
       TF_VAR_domain_name: ${{ vars.TF_DOMAIN_NAME }}
       TF_VAR_app_domain_name: ${{ vars.TF_APP_DOMAIN_NAME }}
       TF_VAR_slack_team_id: ${{ vars.TF_SLACK_TEAM_ID }}
@@ -59,6 +60,7 @@ jobs:
             TF_VAR_docker_image_name
             TF_VAR_docker_image_tag
             TF_VAR_github_actions_repository
+            TF_VAR_github_actions_branch
             TF_VAR_domain_name
             TF_VAR_app_domain_name
             TF_VAR_slack_team_id

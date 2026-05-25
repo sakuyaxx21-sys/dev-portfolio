@@ -73,7 +73,7 @@ resource "aws_iam_policy" "github_actions_cd" {
           "ssm:SendCommand"
         ]
         Resource = [
-          "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:document/AWS-RunShellScript",
+          "arn:aws:ssm:${data.aws_region.current.name}::document/AWS-RunShellScript",
           "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*"
         ]
       },
@@ -123,7 +123,10 @@ resource "aws_iam_role" "github_actions_terraform" {
             "token.actions.githubusercontent.com:aud" = var.github_actions_oidc_audience
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:${var.github_actions_repository}:ref:refs/heads/${var.github_actions_branch}"
+            "token.actions.githubusercontent.com:sub" = [
+              "repo:${var.github_actions_repository}:environment:dev",
+              "repo:${var.github_actions_repository}:environment:prod"
+            ]
           }
         }
       }

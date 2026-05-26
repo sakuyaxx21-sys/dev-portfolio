@@ -140,8 +140,9 @@ module "operations" {
 
   db_instance_identifier = module.db.db_instance_id
 
-  slack_team_id    = var.slack_team_id
-  slack_channel_id = var.slack_channel_id
+  slack_team_id             = var.slack_team_id
+  slack_critical_channel_id = var.slack_critical_channel_id
+  slack_warning_channel_id  = var.slack_warning_channel_id
 }
 
 # ============================
@@ -161,5 +162,6 @@ module "monitoring" {
 
   db_instance_identifier = module.db.db_instance_id
 
-  sns_alerts_topic_arn = module.operations.sns_alerts_topic_arn
+  sns_critical_alerts_topic_arn = module.operations.sns_critical_alerts_topic_arn
+  sns_warning_alerts_topic_arn  = module.operations.sns_warning_alerts_topic_arn
 }

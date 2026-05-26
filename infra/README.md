@@ -264,7 +264,8 @@ Variables:
 - `TF_DOMAIN_NAME`
 - `TF_APP_DOMAIN_NAME`
 - `TF_SLACK_TEAM_ID`
-- `TF_SLACK_CHANNEL_ID`
+- `TF_SLACK_CRITICAL_CHANNEL_ID`
+- `TF_SLACK_WARNING_CHANNEL_ID`
 - `TF_GITHUB_ACTIONS_OIDC_PROVIDER_ARN`（既存OIDC Providerを利用する環境のみ）
 
 ### 運用方針
@@ -320,17 +321,65 @@ Variables:
 
 ### CloudWatch Alarms
 
+監視対象:
+
 - Auto Scaling Group の稼働台数
 - EC2 CPU 使用率
 - Target Group の UnHealthyHostCount
-- ALB / Target Group の 5XX エラー
+- Target Group の 5XX エラー
+- ALB の 5XX エラー
 - RDS CPU 使用率
 - RDS 空きストレージ
 - RDS 接続数
 
+命名規則:
+
+Alarm名は以下の形式で統一します。
+
+```text
+{env}-{project}-ops-alarm-{resource}-{metric}-{severity}
+```
+
+`severity` は以下の値を使用します。
+
+- `crit`: 障害対応が必要なCritical Alarm
+- `warn`: 注意喚起レベルのWarning Alarm
+
+Critical Alarm:
+
+- `GroupInServiceInstances` / `GroupDesiredCapacity`
+- `UnHealthyHostCount`
+- `HTTPCode_ELB_5XX_Count`
+- `FreeStorageSpace`
+
+Warning Alarm:
+
+- ASG `CPUUtilization`
+- `HTTPCode_Target_5XX_Count`
+- RDS `CPUUtilization`
+- `DatabaseConnections`
+
+Alarm名の例:
+
+```text
+dev-portfolio-ops-alarm-asg-capacity-crit
+dev-portfolio-ops-alarm-asg-cpu-warn
+dev-portfolio-ops-alarm-target-unhealthy-crit
+dev-portfolio-ops-alarm-target-5xx-warn
+dev-portfolio-ops-alarm-alb-5xx-crit
+dev-portfolio-ops-alarm-rds-cpu-warn
+dev-portfolio-ops-alarm-rds-storage-crit
+dev-portfolio-ops-alarm-rds-connections-warn
+```
+
 ### Notifications
 
 CloudWatch Alarm は SNS を経由し、AWS Chatbot で Slack に通知します。
+
+critical / warning ごとにSNS TopicとAWS Chatbot Slack Channel Configurationを分離します。
+
+- Critical Alarm: #dev-portfolio-alerts-critical へ通知
+- Warning Alarm: #dev-portfolio-alerts-warning へ通知
 
 ---
 
@@ -348,7 +397,7 @@ CloudWatch Alarm は SNS を経由し、AWS Chatbot で Slack に通知します
 - GitHub Actions OIDC Provider ARN
 - GitHub Actions CD Role ARN
 - GitHub Actions Terraform Role ARN
-- SNS Topic ARN
+- SNS Topic ARN（critical / warning）
 - CloudWatch Log Group Name
 
 ---

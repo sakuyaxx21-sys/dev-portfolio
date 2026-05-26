@@ -50,7 +50,12 @@ variable "db_instance_identifier" {
 # ============================
 # SNS
 # ============================
-variable "sns_alerts_topic_arn" {
-  description = "SNS topic ARN for alarm notifications"
+variable "sns_critical_alerts_topic_arn" {
+  description = "SNS topic ARN for critical alarm notifications"
+  type        = string
+}
+
+variable "sns_warning_alerts_topic_arn" {
+  description = "SNS topic ARN for warning alarm notifications"
   type        = string
 }

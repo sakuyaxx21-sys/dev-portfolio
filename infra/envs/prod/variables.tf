@@ -257,7 +257,12 @@ variable "slack_team_id" {
   type        = string
 }
 
-variable "slack_channel_id" {
-  description = "Slack channel ID for AWS Chatbot notifications"
+variable "slack_critical_channel_id" {
+  description = "Slack channel ID for critical AWS Chatbot notifications"
+  type        = string
+}
+
+variable "slack_warning_channel_id" {
+  description = "Slack channel ID for warning AWS Chatbot notifications"
   type        = string
 }

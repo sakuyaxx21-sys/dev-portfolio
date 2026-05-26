@@ -35,7 +35,7 @@ output "private_db_subnet_ids" {
 }
 
 # ============================
-# ALB / Application
+# App / ALB
 # ============================
 output "alb_dns_name" {
   description = "ALB DNS name"
@@ -125,14 +125,24 @@ output "route53_app_record" {
 # ============================
 # Monitoring / Notifications
 # ============================
-output "sns_alerts_topic_arn" {
-  description = "SNS topic ARN for CloudWatch alarm notifications"
-  value       = module.operations.sns_alerts_topic_arn
+output "sns_critical_alerts_topic_arn" {
+  description = "SNS topic ARN for critical CloudWatch alarm notifications"
+  value       = module.operations.sns_critical_alerts_topic_arn
 }
 
-output "chatbot_slack_configuration" {
-  description = "AWS Chatbot Slack channel configuration name"
-  value       = module.operations.chatbot_slack_configuration_name
+output "sns_warning_alerts_topic_arn" {
+  description = "SNS topic ARN for warning CloudWatch alarm notifications"
+  value       = module.operations.sns_warning_alerts_topic_arn
+}
+
+output "chatbot_critical_slack_configuration" {
+  description = "AWS Chatbot Slack channel configuration name for critical alerts"
+  value       = module.operations.chatbot_critical_slack_configuration_name
+}
+
+output "chatbot_warning_slack_configuration" {
+  description = "AWS Chatbot Slack channel configuration name for warning alerts"
+  value       = module.operations.chatbot_warning_slack_configuration_name
 }
 
 # ============================

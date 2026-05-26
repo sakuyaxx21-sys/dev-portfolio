@@ -28,18 +28,35 @@ resource "aws_iam_role_policy_attachment" "chatbot_readonly" {
 }
 
 # ============================
-# AWS Chatbot Slack Channel
+# AWS Chatbot Slack Channel - Critical
 # ============================
-resource "aws_chatbot_slack_channel_configuration" "alerts" {
-  configuration_name = "${local.name_prefix}-chatbot-slack-alerts"
+resource "aws_chatbot_slack_channel_configuration" "critical_alerts" {
+  configuration_name = "${local.name_prefix}-chatbot-slack-alerts-critical"
   iam_role_arn       = aws_iam_role.chatbot.arn
   slack_team_id      = var.slack_team_id
-  slack_channel_id   = var.slack_channel_id
-  sns_topic_arns     = [aws_sns_topic.alerts.arn]
+  slack_channel_id   = var.slack_critical_channel_id
+  sns_topic_arns     = [aws_sns_topic.critical_alerts.arn]
 
   logging_level = "ERROR"
 
   tags = {
-    Name = "${local.name_prefix}-chatbot-slack-alerts"
+    Name = "${local.name_prefix}-chatbot-slack-alerts-critical"
+  }
+}
+
+# ============================
+# AWS Chatbot Slack Channel - Warning
+# ============================
+resource "aws_chatbot_slack_channel_configuration" "warning_alerts" {
+  configuration_name = "${local.name_prefix}-chatbot-slack-alerts-warning"
+  iam_role_arn       = aws_iam_role.chatbot.arn
+  slack_team_id      = var.slack_team_id
+  slack_channel_id   = var.slack_warning_channel_id
+  sns_topic_arns     = [aws_sns_topic.warning_alerts.arn]
+
+  logging_level = "ERROR"
+
+  tags = {
+    Name = "${local.name_prefix}-chatbot-slack-alerts-warning"
   }
 }

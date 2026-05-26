@@ -1,17 +1,27 @@
 # ============================
 # SNS
 # ============================
-output "sns_alerts_topic_arn" {
-  description = "SNS topic ARN for CloudWatch alarm notifications"
-  value       = aws_sns_topic.alerts.arn
+output "sns_critical_alerts_topic_arn" {
+  description = "SNS topic ARN for critical CloudWatch alarm notifications"
+  value       = aws_sns_topic.critical_alerts.arn
+}
+
+output "sns_warning_alerts_topic_arn" {
+  description = "SNS topic ARN for warning CloudWatch alarm notifications"
+  value       = aws_sns_topic.warning_alerts.arn
 }
 
 # ============================
 # Chatbot
 # ============================
-output "chatbot_slack_configuration_name" {
-  description = "AWS Chatbot Slack channel configuration name"
-  value       = aws_chatbot_slack_channel_configuration.alerts.configuration_name
+output "chatbot_critical_slack_configuration_name" {
+  description = "AWS Chatbot Slack channel configuration name for critical alerts"
+  value       = aws_chatbot_slack_channel_configuration.critical_alerts.configuration_name
+}
+
+output "chatbot_warning_slack_configuration_name" {
+  description = "AWS Chatbot Slack channel configuration name for warning alerts"
+  value       = aws_chatbot_slack_channel_configuration.warning_alerts.configuration_name
 }
 
 # ============================

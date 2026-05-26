@@ -46,7 +46,8 @@ jobs:
       TF_VAR_domain_name: ${{ vars.TF_DOMAIN_NAME }}
       TF_VAR_app_domain_name: ${{ vars.TF_APP_DOMAIN_NAME }}
       TF_VAR_slack_team_id: ${{ vars.TF_SLACK_TEAM_ID }}
-      TF_VAR_slack_channel_id: ${{ vars.TF_SLACK_CHANNEL_ID }}
+      TF_VAR_slack_critical_channel_id: ${{ vars.TF_SLACK_CRITICAL_CHANNEL_ID }}
+      TF_VAR_slack_warning_channel_id: ${{ vars.TF_SLACK_WARNING_CHANNEL_ID }}
 
     steps:
       - name: Checkout repository
@@ -64,7 +65,8 @@ jobs:
             TF_VAR_domain_name
             TF_VAR_app_domain_name
             TF_VAR_slack_team_id
-            TF_VAR_slack_channel_id
+            TF_VAR_slack_critical_channel_id
+            TF_VAR_slack_warning_channel_id
           )
 
           for env_var in "${required_env_vars[@]}"; do

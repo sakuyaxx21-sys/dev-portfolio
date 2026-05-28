@@ -1,2 +1,2 @@
-from app.models.users import User
-from app.models.applications import Application
+from app.models.users import User  # noqa: F401
+from app.models.applications import Application  # noqa: F401

@@ -10,9 +10,9 @@ def login_service(db: Session, email: str, password: str) -> str:
 
     if user is None:
         raise InvalidCredentialsError("Invalid email or password")
-    
+
     if not verify_password(password, user.hashed_password):
         raise InvalidCredentialsError("Invalid email or password")
-    
+
     token = create_access_token(email=user.email)
     return token

@@ -13,7 +13,7 @@ class Application(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), 
+        ForeignKey("users.id"),
         nullable=False,
         index=True,
     )
@@ -27,8 +27,8 @@ class Application(Base):
     application_date: Mapped[date] = mapped_column(Date, nullable=False)
 
     status: Mapped[str] = mapped_column(
-        String, 
-        nullable=False, 
+        String,
+        nullable=False,
         default="pending",
         index=True,
     )
@@ -36,24 +36,24 @@ class Application(Base):
     reject_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     reviewed_by: Mapped[int | None] = mapped_column(
-        ForeignKey("users.id"), 
+        ForeignKey("users.id"),
         nullable=True,
     )
 
     reviewed_at: Mapped[datetime | None] = mapped_column(
-        DateTime, 
+        DateTime(timezone=True),
         nullable=True,
     )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        nullable=False, 
+        nullable=False,
         server_default=func.now(),
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        nullable=False, 
+        nullable=False,
         server_default=func.now(),
         onupdate=func.now(),
     )

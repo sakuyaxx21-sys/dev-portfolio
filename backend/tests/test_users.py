@@ -58,7 +58,7 @@ def test_get_user(client):
     assert data["email"] == payload["email"]
 
 
-def  test_get_user_not_found(client):
+def test_get_user_not_found(client):
     response = client.get("/api/v1/users/999999")
 
     assert response.status_code == 404

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.api.dependencies.auth import get_current_admin
 from app.db.session import get_db
 from app.models.users import User
 from app.schemas.applications import (
@@ -13,12 +12,13 @@ from app.services.applications import (
     get_all_applications_service,
     update_application_status_service,
 )
+from app.api.dependencies.auth import get_current_admin
 
 router = APIRouter()
 
 
 @router.get(
-    "/applications", 
+    "/applications",
     response_model=ApplicationListResponse,
     dependencies=[Depends(get_current_admin)],
 )
@@ -31,9 +31,9 @@ def get_all_applications(
     db: Session = Depends(get_db),
 ):
     return get_all_applications_service(
-        db=db, 
-        status=status, 
-        user_id=user_id, 
+        db=db,
+        status=status,
+        user_id=user_id,
         keyword=keyword,
         page=page,
         limit=limit,
@@ -41,7 +41,7 @@ def get_all_applications(
 
 
 @router.patch(
-    "/applications/{application_id}/status", 
+    "/applications/{application_id}/status",
     response_model=ApplicationResponse,
 )
 def update_application_status(
@@ -51,8 +51,8 @@ def update_application_status(
     current_admin: User = Depends(get_current_admin),
 ):
     return update_application_status_service(
-        db=db, 
-        application_id=application_id, 
+        db=db,
+        application_id=application_id,
         admin_user=current_admin,
         payload=payload,
     )

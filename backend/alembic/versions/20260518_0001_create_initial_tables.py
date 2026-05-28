@@ -5,6 +5,7 @@ Revises:
 Create Date: 2026-05-18 00:00:00.000000
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -41,7 +42,7 @@ def upgrade() -> None:
         sa.Column("status", sa.String(), nullable=False),
         sa.Column("reject_reason", sa.Text(), nullable=True),
         sa.Column("reviewed_by", sa.Integer(), nullable=True),
-        sa.Column("reviewed_at", sa.DateTime(), nullable=True),
+        sa.Column("reviewed_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),

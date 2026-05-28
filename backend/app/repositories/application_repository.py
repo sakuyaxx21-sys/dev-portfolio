@@ -40,11 +40,7 @@ def get_application_by_id(
     db: Session,
     application_id: int,
 ) -> Application | None:
-    return (
-        db.query(Application)
-        .filter(Application.id == application_id)
-        .first()
-    )
+    return db.query(Application).filter(Application.id == application_id).first()
 
 
 def build_user_applications_query(
@@ -83,10 +79,7 @@ def paginate_applications(
     total_pages = (total + limit - 1) // limit if total > 0 else 0
     offset = (page - 1) * limit
     applications = (
-        query.order_by(Application.created_at.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
+        query.order_by(Application.created_at.desc()).offset(offset).limit(limit).all()
     )
 
     return {

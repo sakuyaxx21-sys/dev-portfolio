@@ -12,22 +12,23 @@ SQLALCHEMY_DATABASE_URL = f"sqlite:///{TEST_DB_PATH}"
 
 os.environ["DATABASE_URL"] = SQLALCHEMY_DATABASE_URL
 
-from app.main import app
-from app.db.base import Base
-from app.db.session import get_db
-from app.db import models  # noqa: F401
+from app.db.base import Base  # noqa: E402
+from app.db.session import get_db  # noqa: E402
+from app.db import models  # noqa: F401, E402
+from app.main import app  # noqa: E402
 
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
+    SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False},
 )
 
 TestingSessionLocal = sessionmaker(
-    autocommit=False, 
-    autoflush=False, 
+    autocommit=False,
+    autoflush=False,
     bind=engine,
 )
+
 
 def override_get_db():
     db = TestingSessionLocal()

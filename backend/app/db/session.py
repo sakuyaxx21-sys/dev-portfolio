@@ -7,16 +7,14 @@ from app.core.config import settings
 engine = create_engine(
     settings.database_url,
     connect_args=(
-        {"check_same_thread": False} 
-        if "sqlite" in settings.database_url 
-        else {}
+        {"check_same_thread": False} if "sqlite" in settings.database_url else {}
     ),
     pool_pre_ping=True,
 )
 
 SessionLocal = sessionmaker(
-    autocommit=False, 
-    autoflush=False, 
+    autocommit=False,
+    autoflush=False,
     bind=engine,
 )
 

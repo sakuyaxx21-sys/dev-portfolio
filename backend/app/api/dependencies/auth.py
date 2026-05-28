@@ -3,16 +3,16 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.db.session import get_db
 from app.core.security import verify_token
-from app.models.users import User
-from app.repositories import user_repository
 from app.core.exceptions import (
     AuthorizationHeaderMissingError,
     InvalidTokenError,
     UserNotFoundError,
     PermissionDeniedError,
 )
+from app.db.session import get_db
+from app.models.users import User
+from app.repositories import user_repository
 
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -32,12 +32,12 @@ def get_current_user(
 
     if email is None:
         raise InvalidTokenError("Invalid token")
-    
+
     user = user_repository.get_user_by_email(db=db, email=email)
 
     if user is None:
         raise UserNotFoundError("User not found")
-    
+
     return user
 
 
@@ -46,5 +46,5 @@ def get_current_admin(
 ) -> User:
     if current_user.role != "admin":
         raise PermissionDeniedError("Permission denied")
-    
+
     return current_user

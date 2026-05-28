@@ -2,23 +2,23 @@ from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
-from app.models.users import User
-from app.schemas.applications import (
-    ApplicationCreate,
-    ApplicationStatusUpdate,
-)
 from app.core.exceptions import (
     ApplicationNotFoundError,
     InvalidApplicationStatusError,
 )
 from app.models.applications import Application
+from app.models.users import User
 from app.repositories import application_repository
+from app.schemas.applications import (
+    ApplicationCreate,
+    ApplicationStatusUpdate,
+)
 
 
 def create_application_service(
     db: Session,
     current_user: User,
-    application: ApplicationCreate, 
+    application: ApplicationCreate,
 ) -> Application:
     return application_repository.create_application(
         db=db,
@@ -35,7 +35,7 @@ def create_application_service(
 
 
 def get_my_applications_service(
-    db: Session, 
+    db: Session,
     current_user: User,
     page: int = 1,
     limit: int = 10,
@@ -84,18 +84,12 @@ def update_application_status_service(
     )
 
     if application is None:
-        raise ApplicationNotFoundError(
-            f"application_id={application_id} was not found"
-        )
+        raise ApplicationNotFoundError(f"application_id={application_id} was not found")
 
     if payload.status not in ("approved", "rejected"):
         raise InvalidApplicationStatusError("Invalid application status")
 
-    reject_reason = (
-        payload.reject_reason
-        if payload.status == "rejected"
-        else None
-    )
+    reject_reason = payload.reject_reason if payload.status == "rejected" else None
 
     return application_repository.update_application_status(
         db=db,

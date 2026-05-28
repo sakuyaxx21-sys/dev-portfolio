@@ -20,11 +20,7 @@ def get_user_by_email_except_id(
     email: str,
     user_id: int,
 ) -> User | None:
-    return (
-        db.query(User)
-        .filter(User.email == email, User.id != user_id)
-        .first()
-    )
+    return db.query(User).filter(User.email == email, User.id != user_id).first()
 
 
 def create_user(

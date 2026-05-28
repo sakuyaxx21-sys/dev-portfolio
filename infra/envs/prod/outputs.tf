@@ -83,6 +83,9 @@ output "db_endpoint" {
   value       = module.db.db_endpoint
 }
 
+# ============================
+# Secrets Manager
+# ============================
 output "app_secret_name" {
   description = "Secrets Manager secret name for application credentials"
   value       = module.security.app_secret_name
@@ -105,7 +108,7 @@ output "app_url" {
 }
 
 # ============================
-# ACM / Route53
+# ACM / Route 53
 # ============================
 output "acm_certificate_arn" {
   description = "ACM certificate ARN"
@@ -153,9 +156,9 @@ output "alb_logs_bucket_name" {
   value       = module.operations.alb_logs_bucket_name
 }
 
-output "cloudwatch_log_group_docker" {
+output "docker_app_log_group_name" {
   description = "CloudWatch log group name for Docker application logs"
-  value       = module.operations.cloudwatch_log_group_docker
+  value       = module.operations.docker_app_log_group_name
 }
 
 output "waf_log_group_name" {

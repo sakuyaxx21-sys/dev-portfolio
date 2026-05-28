@@ -2,7 +2,7 @@
 # CloudWatch Logs
 # ============================
 
-resource "aws_cloudwatch_log_group" "cloudinit" {
+resource "aws_cloudwatch_log_group" "cloud_init" {
   name              = "/${var.env}/${var.project}/ec2/cloud-init"
   retention_in_days = 7
 
@@ -11,7 +11,7 @@ resource "aws_cloudwatch_log_group" "cloudinit" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "cloudinit_output" {
+resource "aws_cloudwatch_log_group" "cloud_init_output" {
   name              = "/${var.env}/${var.project}/ec2/cloud-init-output"
   retention_in_days = 7
 

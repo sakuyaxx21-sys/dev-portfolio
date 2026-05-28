@@ -35,7 +35,7 @@ output "alb_logs_bucket_name" {
 # ============================
 # CloudWatch Logs
 # ============================
-output "cloudwatch_log_group_docker" {
+output "docker_app_log_group_name" {
   description = "CloudWatch log group name for Docker application logs"
   value       = aws_cloudwatch_log_group.docker_app.name
 }

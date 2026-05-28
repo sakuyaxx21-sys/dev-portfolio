@@ -55,9 +55,7 @@ def update_application_status(application_id: int, status: str) -> None:
     db = TestingSessionLocal()
     try:
         application = (
-            db.query(Application)
-            .filter(Application.id == application_id)
-            .first()
+            db.query(Application).filter(Application.id == application_id).first()
         )
         assert application is not None
         application.status = status
@@ -167,3 +165,47 @@ def test_applications_limit_has_upper_bound(client):
     )
 
     assert response.status_code == 422
+
+
+def test_update_application_status_not_found(client):
+    admin = create_test_user(
+        "not_found_admin@example.com",
+        role="admin",
+        name="Not Found Admin",
+    )
+
+    response = client.patch(
+        "/api/v1/admin/applications/999999/status",
+        headers=auth_headers(admin.email),
+        json={
+            "status": "approved",
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Application not found"}
+
+
+def test_update_application_status_rejects_invalid_status(client):
+    admin = create_test_user(
+        "invalid_status_admin@example.com",
+        role="admin",
+        name="Invalid Status Admin",
+    )
+    user = create_test_user("invalid_status_user@example.com")
+    application = create_application(
+        client,
+        user.email,
+        "Invalid Status Application",
+    )
+
+    response = client.patch(
+        f"/api/v1/admin/applications/{application['id']}/status",
+        headers=auth_headers(admin.email),
+        json={
+            "status": "pending",
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Invalid application status"}

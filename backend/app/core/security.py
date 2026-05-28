@@ -18,10 +18,10 @@ def create_access_token(email: str) -> str:
         "sub": email,
         "exp": expire,
     }
-    
+
     token = jwt.encode(
-        payload, 
-        settings.secret_key, 
+        payload,
+        settings.secret_key,
         algorithm=settings.algorithm,
     )
     return token
@@ -30,17 +30,17 @@ def create_access_token(email: str) -> str:
 def verify_token(token: str) -> str | None:
     try:
         payload = jwt.decode(
-            token, 
-            settings.secret_key, 
+            token,
+            settings.secret_key,
             algorithms=[settings.algorithm],
         )
 
         email = payload.get("sub")
         if not isinstance(email, str):
             return None
-        
+
         return email
-    
+
     except JWTError:
         return None
 

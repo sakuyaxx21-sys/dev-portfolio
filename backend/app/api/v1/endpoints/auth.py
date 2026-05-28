@@ -15,7 +15,7 @@ def login(
     db: Session = Depends(get_db),
 ):
     token = login_service(
-        db=db, 
+        db=db,
         email=request.email,
         password=request.password,
     )

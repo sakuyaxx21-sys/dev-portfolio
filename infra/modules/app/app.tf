@@ -137,9 +137,9 @@ resource "aws_launch_template" "app" {
     cloudwatch_agent_config = var.cloudwatch_agent_config
   }))
 
-  # ==============================
+  # ============================
   # EBS Volume
-  # ==============================
+  # ============================
   block_device_mappings {
     device_name = "/dev/xvda"
 

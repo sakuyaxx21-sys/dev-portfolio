@@ -1,8 +1,9 @@
 from fastapi import FastAPI
-from app.api.v1.router import api_router
+
 from app.core.config import settings
 from app.core.exceptions import AppServiceError
 from app.api.error_handlers import app_service_exception_handler
+from app.api.v1.router import api_router
 
 
 app = FastAPI(

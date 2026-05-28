@@ -5,12 +5,12 @@ resource "aws_cloudwatch_metric_alarm" "asg_inservice" {
   alarm_name          = "${local.name_prefix}-ops-alarm-asg-capacity-crit"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 1
-  threshold           = var.asg_desired_capacity
+  threshold           = 0
+  treat_missing_data  = "notBreaching"
 
   alarm_description = "ASG InService instances are below desired capacity"
 
   alarm_actions = [var.sns_critical_alerts_topic_arn]
-  ok_actions    = [var.sns_critical_alerts_topic_arn]
 
   metric_query {
     id = "inservice"
@@ -62,11 +62,11 @@ resource "aws_cloudwatch_metric_alarm" "asg_cpu" {
   period              = 300
   statistic           = "Average"
   threshold           = 80
+  treat_missing_data  = "notBreaching"
 
   alarm_description = "EC2 CPU utilization in ASG is high"
 
   alarm_actions = [var.sns_warning_alerts_topic_arn]
-  ok_actions    = [var.sns_warning_alerts_topic_arn]
 
   dimensions = {
     AutoScalingGroupName = var.asg_name
@@ -79,17 +79,18 @@ resource "aws_cloudwatch_metric_alarm" "asg_cpu" {
 resource "aws_cloudwatch_metric_alarm" "target_unhealthy" {
   alarm_name          = "${local.name_prefix}-ops-alarm-target-unhealthy-crit"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
+  evaluation_periods  = 3
+  datapoints_to_alarm = 3
   metric_name         = "UnHealthyHostCount"
   namespace           = "AWS/ApplicationELB"
   period              = 60
   statistic           = "Average"
   threshold           = 1
+  treat_missing_data  = "notBreaching"
 
   alarm_description = "Unhealthy targets detected"
 
   alarm_actions = [var.sns_critical_alerts_topic_arn]
-  ok_actions    = [var.sns_critical_alerts_topic_arn]
 
   dimensions = {
     LoadBalancer = var.alb_arn_suffix
@@ -103,17 +104,18 @@ resource "aws_cloudwatch_metric_alarm" "target_unhealthy" {
 resource "aws_cloudwatch_metric_alarm" "target_5xx" {
   alarm_name          = "${local.name_prefix}-ops-alarm-target-5xx-warn"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
+  evaluation_periods  = 3
+  datapoints_to_alarm = 3
   metric_name         = "HTTPCode_Target_5XX_Count"
   namespace           = "AWS/ApplicationELB"
   period              = 60
   statistic           = "Sum"
   threshold           = 1
+  treat_missing_data  = "notBreaching"
 
   alarm_description = "Target group 5XX errors detected"
 
   alarm_actions = [var.sns_warning_alerts_topic_arn]
-  ok_actions    = [var.sns_warning_alerts_topic_arn]
 
   dimensions = {
     LoadBalancer = var.alb_arn_suffix
@@ -127,17 +129,18 @@ resource "aws_cloudwatch_metric_alarm" "target_5xx" {
 resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
   alarm_name          = "${local.name_prefix}-ops-alarm-alb-5xx-crit"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
+  evaluation_periods  = 3
+  datapoints_to_alarm = 3
   metric_name         = "HTTPCode_ELB_5XX_Count"
   namespace           = "AWS/ApplicationELB"
   period              = 60
   statistic           = "Sum"
   threshold           = 1
+  treat_missing_data  = "notBreaching"
 
   alarm_description = "ALB 5XX errors detected"
 
   alarm_actions = [var.sns_critical_alerts_topic_arn]
-  ok_actions    = [var.sns_critical_alerts_topic_arn]
 
   dimensions = {
     LoadBalancer = var.alb_arn_suffix
@@ -156,11 +159,11 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu" {
   period              = 300
   statistic           = "Average"
   threshold           = 80
+  treat_missing_data  = "notBreaching"
 
   alarm_description = "RDS CPU utilization is high"
 
   alarm_actions = [var.sns_warning_alerts_topic_arn]
-  ok_actions    = [var.sns_warning_alerts_topic_arn]
 
   dimensions = {
     DBInstanceIdentifier = var.db_instance_identifier
@@ -179,11 +182,11 @@ resource "aws_cloudwatch_metric_alarm" "rds_storage" {
   period              = 300
   statistic           = "Average"
   threshold           = 2147483648 # 2GB
+  treat_missing_data  = "notBreaching"
 
   alarm_description = "RDS free storage is low"
 
   alarm_actions = [var.sns_critical_alerts_topic_arn]
-  ok_actions    = [var.sns_critical_alerts_topic_arn]
 
   dimensions = {
     DBInstanceIdentifier = var.db_instance_identifier
@@ -202,11 +205,11 @@ resource "aws_cloudwatch_metric_alarm" "rds_connections" {
   period              = 300
   statistic           = "Average"
   threshold           = 80
+  treat_missing_data  = "notBreaching"
 
   alarm_description = "RDS database connections are high"
 
   alarm_actions = [var.sns_warning_alerts_topic_arn]
-  ok_actions    = [var.sns_warning_alerts_topic_arn]
 
   dimensions = {
     DBInstanceIdentifier = var.db_instance_identifier

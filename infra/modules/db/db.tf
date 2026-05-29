@@ -26,8 +26,9 @@ resource "aws_db_instance" "main" {
   storage_encrypted     = true
   kms_key_id            = var.kms_key_arn
 
-  db_name                     = var.db_name
-  username                    = var.db_username
+  db_name  = var.db_name
+  username = var.db_username
+  # AWS owns the master password secret; app bootstrap reads that managed secret.
   manage_master_user_password = true
 
   db_subnet_group_name   = aws_db_subnet_group.main.name

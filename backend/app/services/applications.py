@@ -89,6 +89,7 @@ def update_application_status_service(
     if payload.status not in ("approved", "rejected"):
         raise InvalidApplicationStatusError("Invalid application status")
 
+    # Approved applications must not keep an old rejection reason.
     reject_reason = payload.reject_reason if payload.status == "rejected" else None
 
     return application_repository.update_application_status(

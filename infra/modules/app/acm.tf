@@ -6,6 +6,7 @@ resource "aws_acm_certificate" "app" {
   validation_method = "DNS"
 
   lifecycle {
+    # Avoid certificate downtime during replacement.
     create_before_destroy = true
   }
 
@@ -26,6 +27,7 @@ resource "aws_route53_record" "app_cert_validation" {
     }
   }
 
+  # ACM may rotate DNS validation records during certificate replacement.
   allow_overwrite = true
   zone_id         = data.aws_route53_zone.main.zone_id
   name            = each.value.name

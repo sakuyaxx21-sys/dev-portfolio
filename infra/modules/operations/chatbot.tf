@@ -23,6 +23,7 @@ resource "aws_iam_role" "chatbot" {
 }
 
 resource "aws_iam_role_policy_attachment" "chatbot_readonly" {
+  # Chatbot needs read access to enrich alert details in Slack.
   role       = aws_iam_role.chatbot.name
   policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }

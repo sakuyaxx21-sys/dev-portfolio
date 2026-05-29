@@ -43,9 +43,10 @@ resource "aws_cloudwatch_metric_alarm" "asg_inservice" {
   }
 
   metric_query {
-    id          = "capacity_diff"
-    expression  = "inservice - desired"
-    label       = "InService minus Desired"
+    id         = "capacity_diff"
+    expression = "inservice - desired"
+    label      = "InService minus Desired"
+    # Alarm when running capacity falls below desired capacity.
     return_data = true
   }
 }
@@ -110,8 +111,9 @@ resource "aws_cloudwatch_metric_alarm" "target_5xx" {
   namespace           = "AWS/ApplicationELB"
   period              = 60
   statistic           = "Sum"
-  threshold           = 1
-  treat_missing_data  = "notBreaching"
+  # Intentional low threshold to surface any backend 5XX during early operation.
+  threshold          = 1
+  treat_missing_data = "notBreaching"
 
   alarm_description = "Target group 5XX errors detected"
 
@@ -135,8 +137,9 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
   namespace           = "AWS/ApplicationELB"
   period              = 60
   statistic           = "Sum"
-  threshold           = 1
-  treat_missing_data  = "notBreaching"
+  # Intentional low threshold to surface any load balancer 5XX during early operation.
+  threshold          = 1
+  treat_missing_data = "notBreaching"
 
   alarm_description = "ALB 5XX errors detected"
 

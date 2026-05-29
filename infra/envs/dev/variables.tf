@@ -131,7 +131,8 @@ variable "github_actions_oidc_thumbprint_list" {
 variable "github_actions_terraform_policy_arns" {
   description = "IAM policy ARNs attached to the GitHub Actions Terraform role"
   type        = list(string)
-  default     = ["arn:aws:iam::aws:policy/AdministratorAccess"]
+  # Dev favors convenience; narrow this before promoting the same defaults.
+  default = ["arn:aws:iam::aws:policy/AdministratorAccess"]
 }
 
 # ============================
@@ -197,19 +198,22 @@ variable "db_multi_az" {
 variable "backup_retention_period" {
   description = "Number of days to retain automated backups"
   type        = number
-  default     = 0
+  # Dev disables backups to keep the environment cheap and disposable.
+  default = 0
 }
 
 variable "deletion_protection" {
   description = "Whether to enable deletion protection for RDS"
   type        = bool
-  default     = false
+  # Dev can be destroyed without manual RDS protection steps.
+  default = false
 }
 
 variable "skip_final_snapshot" {
   description = "Whether to skip final snapshot when destroying RDS"
   type        = bool
-  default     = true
+  # Dev skips final snapshots for fast teardown.
+  default = true
 }
 
 # ============================
@@ -233,7 +237,8 @@ variable "kms_deletion_window_in_days" {
 variable "alb_logs_bucket_force_destroy" {
   description = "Whether to force destroy the ALB access logs S3 bucket even if it contains objects"
   type        = bool
-  default     = true
+  # Dev log buckets are disposable.
+  default = true
 }
 
 # ============================

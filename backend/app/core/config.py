@@ -8,7 +8,8 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
     database_url: str = "sqlite:///./test.db"
 
-    secret_key: str = "dev-secret-key"
+    # Development default; production must set SECRET_KEY.
+    secret_key: str = "your-dev-secret-key"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 

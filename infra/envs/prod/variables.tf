@@ -82,7 +82,8 @@ variable "docker_image_name" {
 variable "docker_image_tag" {
   description = "Docker image tag for application deployment"
   type        = string
-  default     = "latest"
+  # Prefer an immutable tag or digest for production deployments.
+  default = "latest"
 }
 
 variable "instance_type" {
@@ -131,7 +132,8 @@ variable "github_actions_oidc_thumbprint_list" {
 variable "github_actions_terraform_policy_arns" {
   description = "IAM policy ARNs attached to the GitHub Actions Terraform role"
   type        = list(string)
-  default     = ["arn:aws:iam::aws:policy/AdministratorAccess"]
+  # Replace with least-privilege policies before production use.
+  default = ["arn:aws:iam::aws:policy/AdministratorAccess"]
 }
 
 # ============================

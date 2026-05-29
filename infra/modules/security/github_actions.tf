@@ -6,6 +6,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
+  # Use an existing OIDC provider when supplied; otherwise create one here.
   github_actions_oidc_provider_arn = (
     var.github_actions_oidc_provider_arn != null
     ? var.github_actions_oidc_provider_arn
@@ -123,6 +124,7 @@ resource "aws_iam_role" "github_actions_terraform" {
             "token.actions.githubusercontent.com:aud" = var.github_actions_oidc_audience
           }
           StringLike = {
+            # Terraform runs are scoped by GitHub Environment instead of branch.
             "token.actions.githubusercontent.com:sub" = [
               "repo:${var.github_actions_repository}:environment:dev",
               "repo:${var.github_actions_repository}:environment:prod"

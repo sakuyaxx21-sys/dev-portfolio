@@ -89,8 +89,9 @@ resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.app.arn
   port              = 443
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09"
-  certificate_arn   = aws_acm_certificate_validation.app.certificate_arn
+  # Keep the public listener on the selected modern TLS policy.
+  ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09"
+  certificate_arn = aws_acm_certificate_validation.app.certificate_arn
 
   default_action {
     type             = "forward"
@@ -177,7 +178,8 @@ resource "aws_autoscaling_group" "app" {
   health_check_type   = "ELB"
 
   launch_template {
-    id      = aws_launch_template.app.id
+    id = aws_launch_template.app.id
+    # Instance refresh should pick up each new template version automatically.
     version = "$Latest"
   }
 

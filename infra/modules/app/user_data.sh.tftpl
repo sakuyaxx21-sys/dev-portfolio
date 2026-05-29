@@ -10,6 +10,7 @@ systemctl start docker
 mkdir -p ${app_dir}
 cd ${app_dir}
 
+# Fetch runtime secrets during instance bootstrap.
 APP_SECRET_JSON=$(aws secretsmanager get-secret-value \
   --secret-id ${app_secret_name} \
   --query SecretString \
@@ -25,6 +26,7 @@ DB_SECRET_JSON=$(aws secretsmanager get-secret-value \
 DB_PASSWORD=$(echo "$DB_SECRET_JSON" | jq -r .password)
 APP_SECRET_KEY=$(echo "$APP_SECRET_JSON" | jq -r .secret_key)
 
+# Write the container env file from bootstrap-only secret reads.
 cat <<EOF > .env.ec2
 APP_NAME=Dev Portfolio App
 APP_VERSION=1.0.0
@@ -50,6 +52,7 @@ EOF
 
 docker pull ${docker_image_name}:${docker_image_tag}
 
+# Run migrations before replacing the long-lived app container.
 docker run --rm \
   --env-file .env.ec2 \
   ${docker_image_name}:${docker_image_tag} \

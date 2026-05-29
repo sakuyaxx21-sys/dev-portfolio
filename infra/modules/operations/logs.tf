@@ -39,6 +39,7 @@ resource "aws_cloudwatch_log_group" "ssm" {
 }
 
 resource "aws_cloudwatch_log_group" "waf" {
+  # WAF logging to CloudWatch Logs requires the aws-waf-logs- prefix.
   name              = "aws-waf-logs-${local.name_prefix}-ops"
   retention_in_days = 30
 

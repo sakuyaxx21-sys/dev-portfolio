@@ -15,6 +15,7 @@ def seed():
             print("admin user already exists")
             return
 
+        # Development-only admin credentials; replace before production use.
         admin = User(
             name="Admin",
             email="admin@example.com",

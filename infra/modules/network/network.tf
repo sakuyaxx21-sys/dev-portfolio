@@ -34,6 +34,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = {
+    # Naming currently assumes the standard two-AZ a/c layout.
     Name = "${local.name_prefix}-subnet-public-${count.index == 0 ? "a" : "c"}"
     Tier = "public"
   }
@@ -50,6 +51,7 @@ resource "aws_subnet" "private_app" {
   availability_zone = var.availability_zones[count.index]
 
   tags = {
+    # Naming currently assumes the standard two-AZ a/c layout.
     Name = "${local.name_prefix}-subnet-private-app-${count.index == 0 ? "a" : "c"}"
     Tier = "private-app"
   }
@@ -66,6 +68,7 @@ resource "aws_subnet" "private_db" {
   availability_zone = var.availability_zones[count.index]
 
   tags = {
+    # Naming currently assumes the standard two-AZ a/c layout.
     Name = "${local.name_prefix}-subnet-private-db-${count.index == 0 ? "a" : "c"}"
     Tier = "private-db"
   }
@@ -79,6 +82,7 @@ resource "aws_eip" "natgw" {
   domain = "vpc"
 
   tags = {
+    # Naming currently assumes the standard two-AZ a/c layout.
     Name = "${local.name_prefix}-eip-natgw-${count.index == 0 ? "a" : "c"}"
   }
 }
@@ -93,6 +97,7 @@ resource "aws_nat_gateway" "main" {
   subnet_id     = aws_subnet.public[count.index].id
 
   tags = {
+    # Naming currently assumes the standard two-AZ a/c layout.
     Name = "${local.name_prefix}-natgw-${count.index == 0 ? "a" : "c"}"
   }
 
@@ -132,6 +137,7 @@ resource "aws_route_table" "private_app" {
   vpc_id = aws_vpc.main.id
 
   tags = {
+    # Naming currently assumes the standard two-AZ a/c layout.
     Name = "${local.name_prefix}-rt-private-app-${count.index == 0 ? "a" : "c"}"
   }
 }
@@ -141,7 +147,8 @@ resource "aws_route" "private_app_default" {
 
   route_table_id         = aws_route_table.private_app[count.index].id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.main[min(count.index, var.nat_gateway_count - 1)].id
+  # Reuse the last NAT gateway when fewer NATs than app subnets are requested.
+  nat_gateway_id = aws_nat_gateway.main[min(count.index, var.nat_gateway_count - 1)].id
 }
 
 resource "aws_route_table_association" "private_app" {

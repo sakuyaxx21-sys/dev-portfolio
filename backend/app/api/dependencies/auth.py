@@ -17,6 +17,7 @@ from app.repositories import user_repository
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.api_v1_prefix}/auth/token",
+    # Let the app raise domain-specific auth errors instead of FastAPI defaults.
     auto_error=False,
 )
 

@@ -28,6 +28,7 @@ def login(
 
 @router.post("/token", response_model=TokenResponse)
 def login_for_access_token(
+    # Form endpoint used by OAuth2 password flow and Swagger UI.
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):

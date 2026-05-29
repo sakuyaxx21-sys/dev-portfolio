@@ -101,6 +101,7 @@ async def app_service_exception_handler(
         raise exc
 
     try:
+        # Service mappers raise HTTPException; this handler owns the final JSON shape.
         handle_service_exception(exc)
     except HTTPException as http_exc:
         return JSONResponse(

@@ -10,6 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_DB_PATH = BASE_DIR / "pytest.db"
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{TEST_DB_PATH}"
 
+# Set the test database before importing app settings and the engine.
 os.environ["DATABASE_URL"] = SQLALCHEMY_DATABASE_URL
 
 from app.db.base import Base  # noqa: E402

@@ -6,6 +6,7 @@ from app.core.config import settings
 
 engine = create_engine(
     settings.database_url,
+    # SQLite test/local connections may cross FastAPI worker threads.
     connect_args=(
         {"check_same_thread": False} if "sqlite" in settings.database_url else {}
     ),

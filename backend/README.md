@@ -52,6 +52,12 @@ PostgreSQL（RDS）
 - ログインAPI
 
 ### ユーザー機能
+- ユーザー作成
+- ユーザー一覧・詳細取得
+- ユーザー情報更新・削除
+- ログイン中ユーザー情報取得
+
+### 申請機能
 - 交通費精算申請の作成
 - 自分の申請一覧取得（pagination対応）
 
@@ -203,6 +209,35 @@ password=password123
 <details>
 <summary>ユーザーAPI</summary>
 
+### GET /api/v1/users
+- ユーザー一覧を取得
+- `limit` により取得件数を指定可能
+
+**Request例**
+```text
+GET /api/v1/users?limit=10
+```
+
+**Query Parameters**
+
+| name  | default | validation | 説明 |
+|-------|---------|------------|------|
+| limit | 10      | -          | 取得件数 |
+
+**Response**
+```json
+[
+  {
+    "id": 1,
+    "name": "User",
+    "email": "user@example.com",
+    "role": "user"
+  }
+]
+```
+
+---
+
 ### POST /api/v1/users  
 - 新規ユーザーを作成
 
@@ -222,6 +257,71 @@ password=password123
   "name": "User",
   "email": "user@example.com",
   "role": "user"
+}
+```
+
+---
+
+### GET /api/v1/users/me
+- ログイン中ユーザーの情報を取得（認証必要）
+
+**Response**
+```json
+{
+  "id": 1,
+  "name": "User",
+  "email": "user@example.com",
+  "role": "user"
+}
+```
+
+---
+
+### GET /api/v1/users/{user_id}
+- 指定したユーザーIDのユーザー情報を取得
+
+**Response**
+```json
+{
+  "id": 1,
+  "name": "User",
+  "email": "user@example.com",
+  "role": "user"
+}
+```
+
+---
+
+### PUT /api/v1/users/{user_id}
+- 指定したユーザーIDのユーザー情報を更新
+
+**Request**
+```json
+{
+  "name": "Updated User",
+  "email": "updated_user@example.com"
+}
+```
+
+**Response**
+```json
+{
+  "id": 1,
+  "name": "Updated User",
+  "email": "updated_user@example.com",
+  "role": "user"
+}
+```
+
+---
+
+### DELETE /api/v1/users/{user_id}
+- 指定したユーザーIDのユーザーを削除
+
+**Response**
+```json
+{
+  "message": "User deleted successfully"
 }
 ```
 
@@ -254,7 +354,12 @@ password=password123
   "content": "東京-大阪 新幹線代",
   "amount": 15000,
   "application_date": "2026-04-01",
-  "status": "pending"
+  "status": "pending",
+  "reject_reason": null,
+  "reviewed_by": null,
+  "reviewed_at": null,
+  "created_at": "2026-04-01T00:00:00",
+  "updated_at": "2026-04-01T00:00:00"
 }
 ```
 
@@ -359,6 +464,7 @@ GET /api/v1/admin/applications?status=pending&page=1&limit=10
 
 ### PATCH /api/v1/admin/applications/{application_id}/status  
 - 申請のステータスを更新（admin権限）
+- reviewed_by は承認・却下を実施した管理者ユーザーID
 
 **Request（承認）**
 ```json
@@ -373,6 +479,24 @@ GET /api/v1/admin/applications?status=pending&page=1&limit=10
 {
   "status": "rejected",
   "reject_reason": "領収書不備"
+}
+```
+
+**Response**
+```json
+{
+  "id": 1,
+  "user_id": 1,
+  "title": "交通費精算",
+  "content": "東京-大阪 新幹線代",
+  "amount": 15000,
+  "application_date": "2026-04-01",
+  "status": "approved",
+  "reject_reason": null,
+  "reviewed_by": 2,
+  "reviewed_at": "2026-04-01T00:00:00",
+  "created_at": "2026-04-01T00:00:00",
+  "updated_at": "2026-04-01T00:00:00"
 }
 ```
 
@@ -413,10 +537,22 @@ GET /api/v1/admin/applications?status=pending&page=1&limit=10
 以下のカスタム例外を使用
 
 - AppServiceError（基底例外）
+
 - ResourceNotFoundError
+  - UserNotFoundError
+  - ApplicationNotFoundError
+
 - ConflictError
+  - UserEmailAlreadyExistsError
+  - InvalidApplicationStatusError
+
 - AuthenticationError
+  - InvalidCredentialsError
+  - InvalidTokenError
+  - AuthorizationHeaderMissingError
+
 - AuthorizationError
+  - PermissionDeniedError
 
 ---
 
@@ -560,8 +696,9 @@ alembic downgrade -1
 ## ■ EC2 Deployment
 
 EC2環境では、アプリケーションコンテナのみを起動し、DBはAmazon RDS for PostgreSQLを使用します。
-
 RDS接続情報はTerraformで作成したSecrets Managerから取得し、EC2起動時に `.env.ec2` として生成します。
+
+以下は `sakuyaxx21/dev-portfolio-app:latest` を使用する場合の実行例です。
 
 ### 1. Docker image取得
 
@@ -596,3 +733,5 @@ docker run -d \
 - リフレッシュトークン実装
 - RBAC（権限管理）の高度化
 - APIレート制限
+- API監査ログの強化
+- テストカバレッジの拡充

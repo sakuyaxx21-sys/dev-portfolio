@@ -83,6 +83,23 @@ def test_get_my_applications_returns_paginated_response(client):
     assert data["total_pages"] == 3
 
 
+def test_get_my_applications_empty_list_returns_one_total_page(client):
+    user = create_test_user("empty_pagination_user@example.com")
+
+    response = client.get(
+        "/api/v1/applications/me",
+        headers=auth_headers(user.email),
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["items"] == []
+    assert data["total"] == 0
+    assert data["page"] == 1
+    assert data["limit"] == 10
+    assert data["total_pages"] == 1
+
+
 def test_get_my_applications_only_returns_current_user_items(client):
     current_user = create_test_user("current_user@example.com")
     other_user = create_test_user("other_user@example.com")
@@ -98,6 +115,91 @@ def test_get_my_applications_only_returns_current_user_items(client):
     data = response.json()
     assert data["total"] == 1
     assert data["items"][0]["title"] == "Current User Application"
+
+
+def test_get_my_applications_requires_authorization_header(client):
+    response = client.get("/api/v1/applications/me")
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Authorization header is missing"}
+
+
+def test_create_application_sets_initial_review_fields(client):
+    user = create_test_user("create_application_user@example.com")
+
+    response = client.post(
+        "/api/v1/applications",
+        headers=auth_headers(user.email),
+        json={
+            "title": "Initial Application",
+            "content": "Initial Application content",
+            "amount": 1000,
+            "application_date": str(date(2026, 4, 1)),
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["user_id"] == user.id
+    assert data["status"] == "pending"
+    assert data["reject_reason"] is None
+    assert data["reviewed_by"] is None
+    assert data["reviewed_at"] is None
+
+
+def test_create_application_requires_authorization_header(client):
+    response = client.post(
+        "/api/v1/applications",
+        json={
+            "title": "Unauthorized Application",
+            "content": "Unauthorized Application content",
+            "amount": 1000,
+            "application_date": str(date(2026, 4, 1)),
+        },
+    )
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Authorization header is missing"}
+
+
+def test_create_application_rejects_invalid_payload(client):
+    user = create_test_user("invalid_application_payload_user@example.com")
+
+    invalid_payloads = [
+        {
+            "title": "",
+            "content": "Valid content",
+            "amount": 1000,
+            "application_date": str(date(2026, 4, 1)),
+        },
+        {
+            "title": "Valid title",
+            "content": "",
+            "amount": 1000,
+            "application_date": str(date(2026, 4, 1)),
+        },
+        {
+            "title": "Valid title",
+            "content": "Valid content",
+            "amount": 0,
+            "application_date": str(date(2026, 4, 1)),
+        },
+        {
+            "title": "Valid title",
+            "content": "Valid content",
+            "amount": 1000,
+            "application_date": "invalid-date",
+        },
+    ]
+
+    for payload in invalid_payloads:
+        response = client.post(
+            "/api/v1/applications",
+            headers=auth_headers(user.email),
+            json=payload,
+        )
+
+        assert response.status_code == 422
 
 
 def test_admin_applications_returns_paginated_response(client):
@@ -122,6 +224,27 @@ def test_admin_applications_returns_paginated_response(client):
     assert data["page"] == 1
     assert data["limit"] == 2
     assert data["total_pages"] == 2
+
+
+def test_admin_applications_empty_list_returns_one_total_page(client):
+    admin = create_test_user(
+        "empty_admin_pagination@example.com",
+        role="admin",
+        name="Empty Admin Pagination",
+    )
+
+    response = client.get(
+        "/api/v1/admin/applications",
+        headers=auth_headers(admin.email),
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["items"] == []
+    assert data["total"] == 0
+    assert data["page"] == 1
+    assert data["limit"] == 10
+    assert data["total_pages"] == 1
 
 
 def test_admin_applications_paginates_after_filters(client):
@@ -156,11 +279,124 @@ def test_admin_applications_paginates_after_filters(client):
     assert data["items"][0]["status"] == "pending"
 
 
+def test_admin_applications_filters_by_user_id(client):
+    admin = create_test_user(
+        "user_filter_admin@example.com",
+        role="admin",
+        name="User Filter Admin",
+    )
+    target_user = create_test_user("target_filter_user@example.com")
+    other_user = create_test_user("other_filter_user@example.com")
+    target_application = create_application(
+        client,
+        target_user.email,
+        "Target User Application",
+    )
+    create_application(client, other_user.email, "Other User Application")
+
+    response = client.get(
+        f"/api/v1/admin/applications?user_id={target_user.id}",
+        headers=auth_headers(admin.email),
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 1
+    assert data["items"][0]["id"] == target_application["id"]
+    assert data["items"][0]["user_id"] == target_user.id
+
+
+def test_admin_applications_filters_by_keyword(client):
+    admin = create_test_user(
+        "keyword_filter_admin@example.com",
+        role="admin",
+        name="Keyword Filter Admin",
+    )
+    user = create_test_user("keyword_filter_user@example.com")
+    matching_application = create_application(
+        client,
+        user.email,
+        "Taxi Expense",
+    )
+    create_application(client, user.email, "Train Expense")
+
+    response = client.get(
+        "/api/v1/admin/applications?keyword=Taxi",
+        headers=auth_headers(admin.email),
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 1
+    assert data["items"][0]["id"] == matching_application["id"]
+    assert data["items"][0]["title"] == "Taxi Expense"
+
+
+def test_admin_applications_rejects_non_admin_user(client):
+    user = create_test_user("non_admin_list_user@example.com")
+
+    response = client.get(
+        "/api/v1/admin/applications",
+        headers=auth_headers(user.email),
+    )
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Permission denied"}
+
+
+def test_admin_applications_requires_authorization_header(client):
+    response = client.get("/api/v1/admin/applications")
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Authorization header is missing"}
+
+
+def test_admin_applications_limit_has_upper_bound(client):
+    admin = create_test_user(
+        "admin_limit_user@example.com",
+        role="admin",
+        name="Admin Limit User",
+    )
+
+    response = client.get(
+        "/api/v1/admin/applications?page=1&limit=101",
+        headers=auth_headers(admin.email),
+    )
+
+    assert response.status_code == 422
+
+
+def test_admin_applications_page_has_lower_bound(client):
+    admin = create_test_user(
+        "admin_page_user@example.com",
+        role="admin",
+        name="Admin Page User",
+    )
+
+    response = client.get(
+        "/api/v1/admin/applications?page=0&limit=10",
+        headers=auth_headers(admin.email),
+    )
+
+    assert response.status_code == 422
+
+
 def test_applications_limit_has_upper_bound(client):
     user = create_test_user("limit_user@example.com")
 
     response = client.get(
         "/api/v1/applications/me?page=1&limit=101",
+        headers=auth_headers(user.email),
+    )
+
+    assert response.status_code == 422
+
+
+def test_applications_page_has_lower_bound(client):
+    user = create_test_user("page_user@example.com")
+
+    response = client.get(
+        "/api/v1/applications/me?page=0&limit=10",
         headers=auth_headers(user.email),
     )
 
@@ -184,6 +420,116 @@ def test_update_application_status_not_found(client):
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Application not found"}
+
+
+def test_update_application_status_requires_authorization_header(client):
+    response = client.patch(
+        "/api/v1/admin/applications/1/status",
+        json={"status": "approved"},
+    )
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Authorization header is missing"}
+
+
+def test_update_application_status_approves_application(client):
+    admin = create_test_user(
+        "approve_admin@example.com",
+        role="admin",
+        name="Approve Admin",
+    )
+    user = create_test_user("approve_user@example.com")
+    application = create_application(client, user.email, "Approve Application")
+
+    response = client.patch(
+        f"/api/v1/admin/applications/{application['id']}/status",
+        headers=auth_headers(admin.email),
+        json={"status": "approved"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "approved"
+    assert data["reviewed_by"] == admin.id
+    assert data["reviewed_at"] is not None
+    assert data["reject_reason"] is None
+
+
+def test_update_application_status_rejects_application_with_reason(client):
+    admin = create_test_user(
+        "reject_admin@example.com",
+        role="admin",
+        name="Reject Admin",
+    )
+    user = create_test_user("reject_user@example.com")
+    application = create_application(client, user.email, "Reject Application")
+
+    response = client.patch(
+        f"/api/v1/admin/applications/{application['id']}/status",
+        headers=auth_headers(admin.email),
+        json={
+            "status": "rejected",
+            "reject_reason": "Receipt is missing",
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "rejected"
+    assert data["reviewed_by"] == admin.id
+    assert data["reviewed_at"] is not None
+    assert data["reject_reason"] == "Receipt is missing"
+
+
+def test_update_application_status_approval_clears_reject_reason(client):
+    admin = create_test_user(
+        "clear_reject_reason_admin@example.com",
+        role="admin",
+        name="Clear Reject Reason Admin",
+    )
+    user = create_test_user("clear_reject_reason_user@example.com")
+    application = create_application(
+        client,
+        user.email,
+        "Clear Reject Reason Application",
+    )
+    client.patch(
+        f"/api/v1/admin/applications/{application['id']}/status",
+        headers=auth_headers(admin.email),
+        json={
+            "status": "rejected",
+            "reject_reason": "Needs more detail",
+        },
+    )
+
+    response = client.patch(
+        f"/api/v1/admin/applications/{application['id']}/status",
+        headers=auth_headers(admin.email),
+        json={"status": "approved"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "approved"
+    assert data["reject_reason"] is None
+
+
+def test_update_application_status_rejects_non_admin_user(client):
+    user = create_test_user("non_admin_update_user@example.com")
+    application = create_application(
+        client,
+        user.email,
+        "Non Admin Update Application",
+    )
+
+    response = client.patch(
+        f"/api/v1/admin/applications/{application['id']}/status",
+        headers=auth_headers(user.email),
+        json={"status": "approved"},
+    )
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Permission denied"}
 
 
 def test_update_application_status_rejects_invalid_status(client):

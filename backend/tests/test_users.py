@@ -19,23 +19,51 @@ def test_create_user(client):
     assert "id" in data
 
 
-def test_get_users(client):
-    payload = {
-        "name": "Test User List",
-        "email": make_email("test_get_users"),
-        "password": "password123",
-    }
-    client.post("/api/v1/users", json=payload)
+def test_create_user_rejects_invalid_payload(client):
+    invalid_payloads = [
+        {
+            "name": "Invalid Email User",
+            "email": "not-an-email",
+            "password": "password123",
+        },
+        {
+            "name": "Short Password User",
+            "email": make_email("short_password_user"),
+            "password": "short",
+        },
+    ]
 
-    response = client.get("/api/v1/users")
+    for payload in invalid_payloads:
+        response = client.post("/api/v1/users", json=payload)
+
+        assert response.status_code == 422
+
+
+def test_get_users(client):
+    payloads = [
+        {
+            "name": "Test User List 1",
+            "email": make_email("test_get_users_1"),
+            "password": "password123",
+        },
+        {
+            "name": "Test User List 2",
+            "email": make_email("test_get_users_2"),
+            "password": "password123",
+        },
+    ]
+    for payload in payloads:
+        client.post("/api/v1/users", json=payload)
+
+    response = client.get("/api/v1/users?limit=1")
 
     assert response.status_code == 200
     data = response.json()
 
     assert isinstance(data, list)
     assert len(data) == 1
-    assert data[0]["name"] == payload["name"]
-    assert data[0]["email"] == payload["email"]
+    assert data[0]["name"] == payloads[0]["name"]
+    assert data[0]["email"] == payloads[0]["email"]
 
 
 def test_get_user(client):
@@ -115,6 +143,26 @@ def test_update_user_not_found(client):
 
     assert response.status_code == 404
     assert response.json() == {"detail": "User not found"}
+
+
+def test_update_user_rejects_invalid_payload(client):
+    create_payload = {
+        "name": "Invalid Update Target",
+        "email": make_email("invalid_update_target"),
+        "password": "password123",
+    }
+    create_response = client.post("/api/v1/users", json=create_payload)
+    created_user = create_response.json()
+
+    response = client.put(
+        f"/api/v1/users/{created_user['id']}",
+        json={
+            "name": "Invalid Update Email",
+            "email": "not-an-email",
+        },
+    )
+
+    assert response.status_code == 422
 
 
 def test_update_user_email_already_exists(client):

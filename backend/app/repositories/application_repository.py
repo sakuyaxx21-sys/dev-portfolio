@@ -76,7 +76,7 @@ def paginate_applications(
     limit: int,
 ) -> dict[str, object]:
     total = query.count()
-    total_pages = (total + limit - 1) // limit if total > 0 else 0
+    total_pages = max(1, (total + limit - 1) // limit)
     offset = (page - 1) * limit
     applications = (
         query.order_by(Application.created_at.desc()).offset(offset).limit(limit).all()

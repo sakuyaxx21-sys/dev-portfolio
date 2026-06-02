@@ -201,7 +201,7 @@ PostgreSQL
   "total": 0,
   "page": 1,
   "limit": 10,
-  "total_pages": 0
+  "total_pages": 1
 }
 ```
 

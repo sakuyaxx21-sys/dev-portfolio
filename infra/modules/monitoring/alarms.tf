@@ -80,8 +80,8 @@ resource "aws_cloudwatch_metric_alarm" "asg_cpu" {
 resource "aws_cloudwatch_metric_alarm" "target_unhealthy" {
   alarm_name          = "${local.name_prefix}-ops-alarm-target-unhealthy-crit"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 3
-  datapoints_to_alarm = 3
+  evaluation_periods  = 5
+  datapoints_to_alarm = 5
   metric_name         = "UnHealthyHostCount"
   namespace           = "AWS/ApplicationELB"
   period              = 60

@@ -72,6 +72,8 @@ jobs:
           context: backend
           file: backend/Dockerfile
           push: true
+          pull: true
+          no-cache: true
           tags: |
             ${{ env.DOCKER_IMAGE }}:${{ env.IMAGE_TAG }}
             ${{ env.DOCKER_IMAGE }}:latest

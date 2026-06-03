@@ -7,7 +7,7 @@
 本ドキュメントは、社内向け申請管理システム基盤の基本設計を整理するものです。  
 要件定義に基づき、AWS上のインフラ構成、FastAPIアプリケーション構成、データ設計、運用設計を定義します。  
 
-本システムは、ALB / EC2 Auto Scaling / RDS PostgreSQL を中心としたWeb三層構成とし、  
+本システムは、ALB / EC2 Auto Scaling / RDS PostgreSQLを中心としたWeb三層構成とし、  
 Terraformで再現可能なインフラとして管理します。  
 
 ---
@@ -157,7 +157,7 @@ PostgreSQL
 | Router | HTTPリクエスト受付、依存関係注入、レスポンスモデル指定 |
 | Dependencies | 認証ユーザー取得、管理者権限確認、DB Session注入 |
 | Service | 業務ロジック、例外判定、認可判断、ステータス更新 |
-| Repository | DBクエリ、作成、更新、pagination |
+| Repository | DBクエリ、作成、更新、ページネーション |
 | ORM Model | テーブル定義 |
 | Schema | リクエスト / レスポンスの型定義 |
 
@@ -310,7 +310,7 @@ Service層で発生した業務例外は、共通例外ハンドラでHTTPレス
 
 ### CI
 
-GitHub Actions CIはPull Request作成時およびmainブランチpush時に実行します。  
+GitHub Actions CIはPull Request作成時およびmainブランチへのpush時に実行します。  
 
 - Python依存関係のインストール
 - `backend` 配下のpytest実行

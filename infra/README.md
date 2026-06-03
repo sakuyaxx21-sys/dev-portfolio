@@ -4,11 +4,11 @@
 
 ## ■ Overview
 
-本インフラは Terraform を用いて AWS 上に構築する、  
+本インフラはTerraformを用いてAWS上に構築する、  
 社内向け申請管理システムの実行基盤です。  
 
-FastAPI アプリケーションを ALB / EC2 Auto Scaling / RDS PostgreSQL で構成し、  
-HTTPS / WAF / Secrets Manager / CloudWatch によるセキュリティ・運用監視を含みます。  
+FastAPIアプリケーションをALB / EC2 Auto Scaling / RDS PostgreSQLで構成し、  
+HTTPS / WAF / Secrets Manager / CloudWatchによるセキュリティ・運用監視を含みます。  
 
 ---
 
@@ -80,14 +80,14 @@ RDS PostgreSQL（Private DB Subnet）
 
 ### セキュリティ設計
 
-- ALB のみインターネットから HTTP / HTTPS を許可
-- HTTP（80）アクセスは HTTPS（443）へリダイレクト
-- EC2 は ALB からのアプリケーションポートのみ許可
-- RDS は EC2 からの PostgreSQL 接続のみ許可
-- EC2 への直接 SSH 接続は行わず、Systems Manager を利用
-- アプリケーションの機密情報は Secrets Manager で管理
-- RDS ストレージとアプリケーション Secret は KMS で暗号化
-- ALB に AWS WAF を関連付け
+- ALBのみインターネットからHTTP / HTTPSを許可
+- HTTP（80）アクセスはHTTPS（443）へリダイレクト
+- EC2はALBからのアプリケーションポートのみ許可
+- RDSはEC2からのPostgreSQL接続のみ許可
+- EC2への直接SSH接続は行わず、Systems Managerを利用
+- アプリケーションの機密情報はSecrets Managerで管理
+- RDSストレージとアプリケーションSecretはKMSで暗号化
+- ALBにAWS WAFを関連付け
 
 ---
 
@@ -117,21 +117,21 @@ infra/
 ### dev
 
 検証用環境です。  
-コストを抑えるため、NAT Gateway は 1 台、RDS Multi-AZ と削除保護は無効です。  
+コストを抑えるため、NAT Gatewayは1台、RDS Multi-AZと削除保護は無効です。  
 
 ### prod
 
 本番想定環境です。  
-可用性と保護を重視し、NAT Gateway は 2 台、RDS Multi-AZ と削除保護を有効化します。  
+可用性と保護を重視し、NAT Gatewayは2台、RDS Multi-AZと削除保護を有効化します。  
 
 ---
 
 ## ■ Terraform Backend
 
-Terraform State は S3 Backend で管理します。  
-Backend 用 S3 バケットは `infra/bootstrap` で作成します。  
-Terraform 1.10 以降でサポートされた `use_lockfile` を使用し、  
-DynamoDB を用いないシンプルな state lock 構成を採用しています。  
+Terraform StateはS3 Backendで管理します。  
+Backend用S3バケットは `infra/bootstrap` で作成します。  
+Terraform 1.10以降でサポートされた `use_lockfile` を使用し、  
+DynamoDBを用いないシンプルなstate lock構成を採用しています。  
 
 ローカルで特定のAWS CLI profileを利用する場合は、`AWS_PROFILE` を指定して実行します。  
 
@@ -176,28 +176,28 @@ AWS_PROFILE=terraform-dev terraform apply
 
 ## ■ Application Runtime
 
-EC2 は Launch Template の user data により、アプリケーションコンテナを自動起動します。  
+EC2はLaunch Templateのuser dataにより、アプリケーションコンテナを自動起動します。  
 
 ### EC2 User Data
 
-EC2 起動時に user data で以下を実行します。  
+EC2起動時にuser dataで以下を実行します。  
 
 - 必要パッケージのインストール
   - Docker
   - jq
   - AWS CLI
   - CloudWatch Agent
-- Docker サービスの有効化・起動
-- Secrets Manager から以下の値を取得
-  - アプリケーション Secret
+- Dockerサービスの有効化・起動
+- Secrets Managerから以下の値を取得
+  - アプリケーションSecret
   - RDS master user secret
-- RDS 接続情報をもとに `.env.ec2` を生成
-- CloudWatch Agent 設定ファイルを配置
-- CloudWatch Agent を起動
-- Docker Hubからアプリケーションimageをpull
+- RDS接続情報をもとに `.env.ec2` を生成
+- CloudWatch Agent設定ファイルを配置
+- CloudWatch Agentを起動
+- Docker HubからDocker imageをpull
 - Alembic migrationを適用
 - 既存コンテナを停止・削除
-- FastAPI アプリケーションコンテナを起動
+- FastAPIアプリケーションコンテナを起動
 
 ```bash
 docker pull ${docker_image_name}:${docker_image_tag}
@@ -327,11 +327,11 @@ Variables:
 
 監視対象:
 
-- Auto Scaling Group の稼働台数
+- Auto Scaling Groupの稼働台数
 - EC2 CPU 使用率
-- Target Group の UnHealthyHostCount
-- Target Group の 5XX エラー
-- ALB の 5XX エラー
+- Target GroupのUnHealthyHostCount
+- Target Groupの5XXエラー
+- ALBの5XXエラー
 - RDS CPU 使用率
 - RDS 空きストレージ
 - RDS 接続数
@@ -378,17 +378,17 @@ dev-portfolio-ops-alarm-rds-connections-warn
 
 ### Notifications
 
-CloudWatch Alarm は SNS を経由し、AWS Chatbot で Slack に通知します。  
-critical / warning ごとにSNS TopicとAWS Chatbot Slack Channel Configurationを分離します。  
+CloudWatch AlarmはSNSを経由し、AWS ChatbotでSlackに通知します。  
+critical / warningごとにSNS TopicとAWS Chatbot Slack Channel Configurationを分離します。  
 
-- Critical Alarm: #dev-portfolio-alerts-critical へ通知
-- Warning Alarm: #dev-portfolio-alerts-warning へ通知
+- Critical Alarm: #dev-portfolio-alerts-criticalへ通知
+- Warning Alarm: #dev-portfolio-alerts-warningへ通知
 
 ---
 
 ## ■ Outputs
 
-代表的な Terraform Output は以下です。  
+代表的なTerraform Outputは以下です。  
 
 - Application URL
 - Route 53 Record
@@ -411,4 +411,4 @@ critical / warning ごとにSNS TopicとAWS Chatbot Slack Channel Configuration�
 - WAFルールの追加・チューニング
 - Blue / Green Deployment
 - Rollback自動化
-- CloudWatch Dashboard の整備
+- CloudWatch Dashboardの整備

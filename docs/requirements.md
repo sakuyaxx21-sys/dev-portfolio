@@ -29,7 +29,7 @@
 
 - 社内申請の作成・承認・管理を一元化する
 - 申請状況を可視化し、確認・承認作業を効率化する
-- AWS / Terraform / FastAPI を用いた実務想定のWebシステム基盤を構築する
+- AWS / Terraform / FastAPIを用いた実務想定のWebシステム基盤を構築する
 
 ### 利用規模
 
@@ -72,12 +72,12 @@
 - 一般社員は申請を作成できる
 - 申請にはタイトル、内容、金額、申請日を登録できる
 - 申請作成時の初期ステータスは `pending` とする
-- 一般社員は自身の申請一覧をpagination付きで取得できる
+- 一般社員は自身の申請一覧をページネーション付きで取得できる
 - 一覧レスポンスには `items` / `total` / `page` / `limit` / `total_pages` を含める
 
 ### 管理者機能
 
-- 管理者は全ユーザーの申請一覧をpagination付きで取得できる
+- 管理者は全ユーザーの申請一覧をページネーション付きで取得できる
 - 管理者は申請一覧を `status` / `user_id` / `keyword` で絞り込める
 - 管理者は申請を `approved` または `rejected` に更新できる
 - 却下時は `reject_reason` を登録できる
@@ -87,7 +87,7 @@
 ### ヘルスチェック機能
 
 - `/api/v1/health` でアプリケーションの稼働状態を確認できる
-- ALB Target Groupのヘルスチェックにも同endpointを利用する
+- ALB Target Groupのヘルスチェックにも同一エンドポイントを利用する
 
 ---
 
@@ -98,7 +98,7 @@
 - APIはバージョン管理されたURL体系で提供する
 - 認証が必要な操作ではBearer tokenを利用する
 - Swagger UIから認証付きAPIを検証できる
-- 一覧取得APIはpage / limitによるpaginationに対応する
+- 一覧取得APIはpage / limitによるページネーションに対応する
 - 入力値が不正な場合は登録・更新を行わず、エラーを返却する
 - 権限が不足している場合は処理を許可しない
 
@@ -147,7 +147,7 @@
 
 - 同時接続数100ユーザーを想定する
 - 主要APIは通常利用時に3秒以内の応答を目標とする
-- 申請一覧はpaginationによりレスポンス肥大化を抑える
+- 申請一覧はページネーションによりレスポンス肥大化を抑える
 - Auto Scaling Groupにより将来的なスケールアウトを可能とする
 
 ### セキュリティ
@@ -168,7 +168,7 @@
 - インフラ構成はTerraformで管理する
 - DBスキーマはAlembicでマイグレーション管理する
 - CIでpytest、Terraform format check、Terraform validateを実行する
-- CDでDocker image build / push、SSM Run CommandによるEC2デプロイ、Alembic migration、ヘルスチェックを実行する
+- CDでDocker imageのbuild / push、SSM Run CommandによるEC2デプロイ、Alembic migration、ヘルスチェックを実行する
 - Terraform plan / applyはGitHub Actionsから手動実行できる
 - CloudWatch LogsでOSログ、Dockerコンテナログ、運用ログを収集する
 - ALBアクセスログはS3に保存する
@@ -188,7 +188,7 @@
 ### ネットワーク
 
 - AWS東京リージョンを利用する
-- Public Subnet と Private Subnet を分離する
+- Public SubnetとPrivate Subnetを分離する
 - アプリケーション層とデータベース層を異なるPrivate Subnetに配置する
 - インターネットから直接到達できる入口はALBに限定する
 - アプリケーション層は外部から直接アクセスできない構成とする

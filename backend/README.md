@@ -4,11 +4,11 @@
 
 ## ■ Overview
 
-本バックエンドは FastAPI を用いた REST API であり、  
+本バックエンドはFastAPIを用いたREST APIであり、  
 社内向け申請管理システムの業務ロジック・認証・データ管理を担います。  
 
-申請作成、承認、ユーザー管理などを API として提供し、  
-JWT 認証によるステートレスな認証方式を採用しています。  
+申請作成、承認、ユーザー管理などをAPIとして提供し、  
+JWT認証によるステートレスな認証方式を採用しています。  
 
 本システムでは、主に「交通費精算申請」をユースケースとして想定しています。  
 
@@ -88,7 +88,7 @@ PostgreSQL（RDS）
 - PostgreSQL
 - python-jose（JWT）
 - OAuth2PasswordBearer / OAuth2PasswordRequestForm
-- python-multipart（OAuth2 form data）
+- python-multipart（OAuth2 form-data）
 - pwdlib（argon2によるパスワードハッシュ化）
 
 ---
@@ -97,14 +97,14 @@ PostgreSQL（RDS）
 
 ### レイヤ構成
 
-- Router / Dependencies / Service / Repository / DB のレイヤ構成
-- Dependencies で認証ユーザー取得・DB Session 注入を実施
-- Service 層でビジネスロジック・例外判定・認可判断を担当
-- Repository 層でDBアクセス処理を集約
-- Repository 層から SQLAlchemy ORM を利用してDB操作を実行
-- SQLAlchemy ORM による DB 抽象化
-- Custom Exception による例外責務分離
-- JWT 認証によるステートレス設計
+- Router / Dependencies / Service / Repository / DBのレイヤ構成
+- Dependenciesで認証ユーザー取得・DB Session注入を実施
+- Service層でビジネスロジック・例外判定・認可判断を担当
+- Repository層でDBアクセス処理を集約
+- Repository層からSQLAlchemy ORMを利用してDB操作を実行
+- SQLAlchemy ORMによるDB抽象化
+- Custom Exceptionによる例外責務分離
+- JWT認証によるステートレス設計
 
 ---
 
@@ -159,7 +159,7 @@ backend/
 
 ## ■ API Specification
 
-詳細なAPI仕様およびリクエスト/レスポンス確認は Swagger UI (`/docs`) を参照してください。  
+詳細なAPI仕様およびリクエスト/レスポンス確認はSwagger UI (`/docs`) を参照してください。  
 
 本APIは `/api/v1` をプレフィックスとしたREST APIです。  
 認証が必要なエンドポイントではJWT認証を使用します。  
@@ -197,9 +197,9 @@ backend/
 
 ### POST /api/v1/auth/token
 
-- Swagger UI の OAuth2 Password Flow 用トークン取得API
+- Swagger UIのOAuth2 Password Flow用トークン取得API
 - `OAuth2PasswordRequestForm` により `application/x-www-form-urlencoded` を受け取る
-- `username` には email を指定する
+- `username` にはemailを指定する
 
 **Request（form-data）**
 
@@ -237,13 +237,9 @@ GET /api/v1/users?limit=10
 
 **Query Parameters**
 
-<!-- markdownlint-disable MD060 -->
-
-| name  | default | validation | 説明 |
-|-------|---------|------------|------|
-| limit | 10      | -          | 取得件数 |
-
-<!-- markdownlint-enable MD060 -->
+| name | default | validation | 説明 |
+| --- | --- | --- | --- |
+| limit | 10 | - | 取得件数 |
 
 **Response**
 
@@ -415,14 +411,10 @@ GET /api/v1/applications/me?page=1&limit=10
 
 **Query Parameters**
 
-<!-- markdownlint-disable MD060 -->
-
-| name  | default | validation | 説明 |
-|-------|---------|------------|------|
-| page  | 1       | 1以上       | 取得するページ番号 |
-| limit | 10      | 1〜100      | 1ページあたりの取得件数 |
-
-<!-- markdownlint-enable MD060 -->
+| name | default | validation | 説明 |
+| --- | --- | --- | --- |
+| page | 1 | 1以上 | 取得するページ番号 |
+| limit | 10 | 1〜100 | 1ページあたりの取得件数 |
 
 **Response**
 
@@ -460,7 +452,7 @@ GET /api/v1/applications/me?page=1&limit=10
 
 ### GET /api/v1/admin/applications
 
-- 全ユーザーの申請一覧を取得（admin権限）
+- 全ユーザーの申請一覧を取得（管理者権限）
 - `status` / `user_id` / `keyword` で絞り込み可能
 - `page` / `limit` によるpaginationに対応
 
@@ -472,17 +464,13 @@ GET /api/v1/admin/applications?status=pending&page=1&limit=10
 
 **Query Parameters**
 
-<!-- markdownlint-disable MD060 -->
-
-| name    | default | validation | 説明 |
-|---------|---------|------------|------|
-| status  | -       | -          | 申請ステータスで絞り込み |
-| user_id | -       | -          | ユーザーIDで絞り込み |
-| keyword | -       | -          | 申請タイトルでキーワード検索 |
-| page    | 1       | 1以上       | 取得するページ番号 |
-| limit   | 10      | 1〜100      | 1ページあたりの取得件数 |
-
-<!-- markdownlint-enable MD060 -->
+| name | default | validation | 説明 |
+| --- | --- | --- | --- |
+| status | - | - | 申請ステータスで絞り込み |
+| user_id | - | - | ユーザーIDで絞り込み |
+| keyword | - | - | 申請タイトルでキーワード検索 |
+| page | 1 | 1以上 | 取得するページ番号 |
+| limit | 10 | 1〜100 | 1ページあたりの取得件数 |
 
 **Response**
 
@@ -515,8 +503,8 @@ GET /api/v1/admin/applications?status=pending&page=1&limit=10
 
 ### PATCH /api/v1/admin/applications/{application_id}/status
 
-- 申請のステータスを更新（admin権限）
-- reviewed_by は承認・却下を実施した管理者ユーザーID
+- 申請のステータスを更新（管理者権限）
+- reviewed_byは承認・却下を実施した管理者ユーザーID
 
 **Request（承認）**
 
@@ -583,11 +571,11 @@ GET /api/v1/admin/applications?status=pending&page=1&limit=10
 
 ### ステータス一覧
 
-| status   | 説明     |
-|----------|----------|
-| pending  | 申請中   |
+| status | 説明 |
+| --- | --- |
+| pending | 申請中 |
 | approved | 承認済み |
-| rejected | 却下     |
+| rejected | 却下済み |
 
 ---
 
@@ -617,27 +605,23 @@ GET /api/v1/admin/applications?status=pending&page=1&limit=10
 
 #### 認証・認可エラー
 
-| ステータス | 内容                           |
-|------------|--------------------------------|
-| 401        | トークンなし / 無効 / 期限切れ |
-| 403        | 権限不足（admin専用APIなど）   |
+| ステータス | 内容 |
+| --- | --- |
+| 401 | トークンなし / 無効 / 期限切れ |
+| 403 | 権限不足（admin専用APIなど） |
 
 ---
 
 #### バリデーション / リソースエラー
 
-<!-- markdownlint-disable MD060 -->
+| ステータス | 内容 |
+| --- | --- |
+| 400 | リクエスト不正（業務ルール上の入力エラーなど） |
+| 404 | リソース、またはAPIパスが存在しない |
+| 405 | 許可されていないHTTPメソッド |
+| 422 | FastAPI / Pydanticによるリクエスト検証エラー |
 
-| ステータス | 内容                                           |
-|------------|------------------------------------------------|
-| 400        | リクエスト不正（業務ルール上の入力エラー等） |
-| 404        | リソース、またはAPIパスが存在しない           |
-| 405        | 許可されていないHTTPメソッド                  |
-| 422        | FastAPI / Pydantic によるリクエスト検証エラー |
-
-<!-- markdownlint-enable MD060 -->
-
-例: request body の必須項目不足、型不一致、`page` が 1 未満、`limit` が 1〜100 の範囲外の場合は 422 を返します。  
+例: request bodyの必須項目不足、型不一致、`page` が1未満、`limit` が1〜100の範囲外の場合は422を返します。  
 
 ---
 
@@ -647,25 +631,25 @@ GET /api/v1/admin/applications?status=pending&page=1&limit=10
 
 - JWT（JSON Web Token）
 - OAuth2 Password Flow
-- Bearer Token
+- Bearer token
 
 ### 利用方法（使い方）
 
-Authorization ヘッダに Bearer Token を設定します。  
+AuthorizationヘッダにBearer tokenを設定します。  
 
 `Authorization: Bearer {access_token}`
 
-Swagger UI（`/docs`）では `Authorize` ボタンから OAuth2 Password Flow を利用します。  
-`username` には登録済みの email を入力します。  
+Swagger UI（`/docs`）では `Authorize` ボタンからOAuth2 Password Flowを利用します。  
+`username` には登録済みのemailを入力します。  
 
 ---
 
 ### 実装方式
 
-- `OAuth2PasswordBearer` により Authorization ヘッダの Bearer Token を取得
-- `OAuth2PasswordRequestForm` により Swagger UI 用のログインフォームを受け取る
-- `/api/v1/auth/login` は JSON ログイン用として維持
-- `/api/v1/auth/token` は Swagger UI / OAuth2 Password Flow 用として利用
+- `OAuth2PasswordBearer` によりAuthorizationヘッダのBearer tokenを取得
+- `OAuth2PasswordRequestForm` によりSwagger UI用のログインフォームを受け取る
+- `/api/v1/auth/login` はJSONログイン用として維持
+- `/api/v1/auth/token` はSwagger UI / OAuth2 Password Flow用として利用
 
 ---
 
@@ -712,7 +696,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 ### 起動手順
 
-ローカルでは docker-compose を使用し、アプリケーションとローカルDBをまとめて起動します。  
+ローカルではDocker Composeを使用し、アプリケーションとローカルDBをまとめて起動します。  
 
 ```bash
 docker compose up -d --build
@@ -768,7 +752,7 @@ RDS接続情報はTerraformで作成したSecrets Managerから取得し、EC2�
 
 以下は `sakuyaxx21/dev-portfolio-app:latest` を使用する場合の実行例です。  
 
-### 1. Docker image取得
+### 1. Docker imageをpull
 
 ```bash
 docker pull sakuyaxx21/dev-portfolio-app:latest

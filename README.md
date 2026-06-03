@@ -145,7 +145,7 @@ RDS PostgreSQL（Private DB Subnet）
 │
 ├── infra/                                       # インフラ構成（Terraform）
 │   ├── bootstrap/                               # Terraform Backend用S3作成
-│   ├── envs/                                    # dev / prod 環境
+│   ├── envs/                                    # dev / prod環境
 │   ├── modules/                                 # Terraform modules
 │   └── README.md                                # インフラ詳細
 │
@@ -173,7 +173,7 @@ docker compose exec app alembic upgrade head
 
 - Local:
   - API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
-  - Swagger UI から OAuth2 Password Flow によるJWT認証を実行可能
+  - Swagger UIからOAuth2 Password FlowによるJWT認証を実行可能
 
 ---
 
@@ -202,7 +202,7 @@ GitHub Actions CIにより、Pull Request作成時およびmainブランチへ�
 
 ### 対象外
 
-- Docker image build / push
+- Docker imageのbuild / push
 - AWS認証設定
 
 ---
@@ -284,8 +284,8 @@ Variables:
 - [要件定義書](docs/requirements.md)
 - [基本設計書](docs/basic-design.md)
 - [ER図](docs/er-diagram.png)
-- [Backend詳細](backend/README.md)
-- [Infrastructure詳細](infra/README.md)
+- [バックエンド詳細](backend/README.md)
+- [インフラ詳細](infra/README.md)
 
 ---
 
@@ -295,7 +295,7 @@ Variables:
 - Rollback自動化
 - CI/CD パイプラインの改善
 - 監視・通知機能の強化
-- CloudWatch Dashboard の整備
+- CloudWatch Dashboardの整備
 
 ---
 

@@ -7,7 +7,7 @@ data "aws_ami" "amazon_linux_2023" {
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["al2023-ami-2023*-x86_64"]
   }
 
   filter {
@@ -178,9 +178,8 @@ resource "aws_autoscaling_group" "app" {
   health_check_type   = "ELB"
 
   launch_template {
-    id = aws_launch_template.app.id
-    # Instance refresh should pick up each new template version automatically.
-    version = "$Latest"
+    id      = aws_launch_template.app.id
+    version = aws_launch_template.app.latest_version
   }
 
   instance_refresh {

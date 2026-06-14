@@ -1,5 +1,5 @@
 #!/bin/bash
-set -xe
+set -euo pipefail
 
 dnf update -y
 dnf install -y docker jq awscli amazon-cloudwatch-agent

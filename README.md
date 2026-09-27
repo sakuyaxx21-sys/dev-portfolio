@@ -304,3 +304,4 @@ Variables:
 Sakuya Aradono
 
 - GitHub: [sakuyaxx21-sys](https://github.com/sakuyaxx21-sys)
+- Zenn: [sakuyaxx21](https://zenn.dev/sakuyaxx21)

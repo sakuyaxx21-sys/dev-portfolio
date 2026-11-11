@@ -179,7 +179,8 @@ docker compose exec app alembic upgrade head
 
 ## ■ Deployment
 
-AWS上のEC2およびRDSを利用してアプリケーションを公開しています。  
+AWS上のEC2およびRDSを利用してアプリケーションを公開する構成です。  
+現在はAWSの運用コスト削減のため、公開環境を一時停止していますが、必要に応じて再公開可能です。  
 詳細は `backend/README.md` および `infra/README.md` を参照してください。  
 
 ### Public アクセス
